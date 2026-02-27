@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>РХАХТА — Тавилын карт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060a12;
+  --panel: #0c1220;
+  --border: #1a2d4a;
+  --accent: #00d4ff;
+  --accent2: #e94560;
+  --success: #00ff88;
+  --warn: #ffb300;
+  --text: #c8d8f0;
+  --muted: #4a6080;
+  --mono: 'Share Tech Mono', monospace;
+  --sans: 'Exo 2', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* HEADER */
+.header {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,10,18,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 16px;
+  height: 56px;
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 14px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  display: flex; align-items: center; gap: 8px;
+}
+.logo-dot {
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+.header-status {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  display: flex; align-items: center; gap: 6px;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
+
+/* MAIN LAYOUT */
+.layout {
+  position: relative; z-index: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  height: calc(100vh - 56px);
+}
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.search-box {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.search-box:focus { border-color: var(--accent); }
+.search-box::placeholder { color: var(--muted); }
+
+.station-list {
+  flex: 1; overflow-y: auto;
+  padding: 8px;
+}
+.station-list::-webkit-scrollbar { width: 4px; }
+.station-list::-webkit-scrollbar-track { background: transparent; }
+.station-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.station-item {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+  margin-bottom: 2px;
+  display: flex; align-items: center; gap: 10px;
+}
+.station-item:hover { background: rgba(0,212,255,0.05); border-color: var(--border); }
+.station-item.active {
+  background: rgba(0,212,255,0.08);
+  border-color: var(--accent);
+}
+.station-icon {
+  width: 28px; height: 28px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; flex-shrink: 0;
+}
+.station-item.active .station-icon { border-color: var(--accent); }
+.station-name { font-size: 12px; font-weight: 600; color: var(--text); flex: 1; }
+.station-count {
+  font-family: var(--mono);
+  font-size: 10px; color: var(--muted);
+  background: var(--bg);
+  padding: 2px 6px; border-radius: 4px;
+}
+.station-item.active .station-count { color: var(--accent); }
+
+/* MAIN CONTENT */
+.main {
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+
+/* TOP BAR */
+.topbar {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 16px;
+  background: var(--panel);
+}
+.station-title {
+  font-size: 18px; font-weight: 800;
+  color: #fff;
+  letter-spacing: 0.5px;
+}
+.station-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+.filter-row {
+  display: flex; gap: 8px; margin-left: auto;
+}
+.filter-select {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 12px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 12px;
+  outline: none;
+  cursor: pointer;
+  min-width: 160px;
+}
+.filter-select:focus { border-color: var(--accent); }
+
+.btn {
+  padding: 7px 16px;
+  border-radius: 8px;
+  border: none;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+.btn-primary:hover { background: #00b8d9; transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
+
+/* STATS ROW */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.stat-card {
+  background: var(--panel);
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 12px;
+}
+.stat-icon { font-size: 20px; }
+.stat-val {
+  font-family: var(--mono);
+  font-size: 20px; font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+.stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* TABLE AREA */
+.table-area {
+  flex: 1; overflow: auto; padding: 0;
+}
+.table-area::-webkit-scrollbar { width: 6px; height: 6px; }
+.table-area::-webkit-scrollbar-track { background: transparent; }
+.table-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+thead { position: sticky; top: 0; z-index: 10; }
+th {
+  background: #0a1525;
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+td {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(26,45,74,0.5);
+  vertical-align: middle;
+}
+tr:hover td { background: rgba(0,212,255,0.02); }
+
+.equip-badge {
+  display: inline-block;
+  background: rgba(0,212,255,0.08);
+  border: 1px solid rgba(0,212,255,0.2);
+  color: var(--accent);
+  padding: 2px 8px; border-radius: 4px;
+  font-family: var(--mono); font-size: 11px;
+  white-space: nowrap;
+}
+.param-name { color: var(--text); font-weight: 500; }
+.ham-func { color: var(--muted); font-size: 12px; }
+.value-cell {
+  font-family: var(--mono);
+  font-size: 13px; font-weight: 600;
+  color: var(--success);
+}
+.value-null { color: var(--muted); font-style: italic; }
+.unit-badge {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 1px 6px; border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+/* EMPTY / LOADING */
+.center-msg {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  height: 100%;
+  gap: 12px;
+  color: var(--muted);
+}
+.center-msg .icon { font-size: 48px; opacity: 0.3; }
+.center-msg p { font-size: 14px; }
+
+.loading-bar {
+  width: 200px; height: 2px;
+  background: var(--border);
+  border-radius: 1px;
+  overflow: hidden;
+}
+.loading-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: var(--accent);
+  border-radius: 1px;
+  animation: loading 1s infinite;
+}
+@keyframes loading {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 18px;
+  font-size: 13px;
+  z-index: 1000;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all 0.3s ease;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-color: var(--success); }
+.toast.error { border-color: var(--accent2); }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-dot"></div>
+    РХАХТА · ТАВИЛЫН КАРТ
+  </div>
+  <div class="header-status">
+    <div class="status-dot" id="conn-dot" style="background:var(--warn)"></div>
+    <span id="conn-text">Холбогдож байна...</span>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <input class="search-box" type="text" id="station-search" placeholder="🔍  Станц хайх...">
+    </div>
+    <div class="station-list" id="station-list">
+      <div class="center-msg" style="height:200px">
+        <div class="loading-bar"></div>
+        <p style="font-size:12px">Станцууд уншиж байна...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div>
+        <div class="station-title" id="main-title">Станц сонгоно уу</div>
+        <div class="station-meta" id="main-meta">← Зүүн талаас станц сонгоно уу</div>
+      </div>
+      <div class="filter-row">
+	<select class="filter-select" id="voltage-filter">
+ 	 <option value="">Бүх хүчдэл</option>
+	</select>
+        <select class="filter-select" id="equip-filter">
+          <option value="">Бүх тоноглол</option>
+        </select>
+        <button class="btn btn-ghost" id="btn-csv">⬇ CSV</button>
+        <button class="btn btn-primary" id="btn-refresh">↻ Шинэчлэх</button>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon">⚙️</div>
+        <div>
+          <div class="stat-val" id="stat-equip">—</div>
+          <div class="stat-label">Тоноглол</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div>
+          <div class="stat-val" id="stat-settings">—</div>
+          <div class="stat-label">Тавилын утга</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div>
+          <div class="stat-val" id="stat-verified">—</div>
+          <div class="stat-label">Баталгаажсан</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏢</div>
+        <div>
+          <div class="stat-val" id="stat-stations">—</div>
+          <div class="stat-label">Нийт станц</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-area" id="table-area">
+      <div class="center-msg">
+        <div class="icon">⚡</div>
+        <p>Станц сонгоод тавилын карт харна уу</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// SUPABASE CONFIG (ЭНД Л ЗӨВ БАЙХ ЁСТОЙ)
+// ============================================================
+const SUPABASE_URL = 'https://qsudyfyzrnoegeqedxhb.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_0HjQubJeF-BlZxW1kNx6PQ_CEcSC7bM';
+
+const headers = {
+  apikey: SUPABASE_KEY,
+  Authorization: `Bearer ${SUPABASE_KEY}`,
+  'Content-Type': 'application/json',
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let allStations = [];
+let currentStation = null;
+let currentData = [];
+let currentEquipFilter = '';
+
+// ============================================================
+// API HELPERS
+// ============================================================
+async function supabase(path, params = '') {
+  const url = `${SUPABASE_URL}/rest/v1/${path}${params}`;
+  const res = await fetch(url, { method: 'GET', headers, mode: 'cors' });
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`${res.status}: ${errText.slice(0, 300)}`);
+  }
+  return res.json();
+}
+
+function encodeFilterValue(v) {
+  // PostgREST filter-д value-г зөв encode хийнэ
+  return encodeURIComponent(String(v));
+}
+
+function normalizeName(v) {
+  // Хэрэглэгчийн string дээр түгээмэл асуудлууд (trim + гаднах давхар quote)
+  let s = String(v).trim();
+  s = s.replace(/^\uFEFF/, '');
+  // Гаднах "..." эсвэл '...' байвал аваад үзэх fallback-д хэрэгтэй
+  const unquoted = s.replace(/^["'](.*)["']$/, '$1').trim();
+  return { raw: s, unquoted };
+}
+
+// ============================================================
+// INIT
+// ============================================================
+async function init() {
+  try {
+    await supabase('stations', '?select=id&limit=1');
+    setConnected(true);
+
+    // 1) Бүх станц (stations table)
+    const stations = await supabase(
+      'stations',
+      '?select=name&order=name.asc&limit=5000'
+    );
+
+    // 2) Settings view-ээс тоноглолын тоог тоолно (limit өсгөнө)
+    const data = await supabase(
+      'v_settings_full',
+      '?select=station_name,equipment_name&limit=50000'
+    );
+
+    const stationMap = {};
+    data.forEach(r => {
+      const sn = r.station_name;
+      if (!stationMap[sn]) stationMap[sn] = new Set();
+      stationMap[sn].add(r.equipment_name);
+    });
+
+    // 3) Sidebar list (settings байхгүй станц ч харагдана)
+    allStations = stations.map(s => ({
+      name: s.name,
+      count: stationMap[s.name]?.size ?? 0
+    }));
+
+    renderStations(allStations);
+    document.getElementById('stat-stations').textContent = allStations.length;
+
+    showToast('✅ Supabase холбогдлоо!', 'success');
+  } catch (e) {
+    setConnected(false);
+    showToast('❌ Холболт амжилтгүй: ' + e.message, 'error');
+    console.error(e);
+  }
+}
+function setConnected(ok) {
+  const dot = document.getElementById('conn-dot');
+  const txt = document.getElementById('conn-text');
+  if (!dot || !txt) return;
+
+  dot.style.background = ok ? 'var(--success)' : 'var(--accent2)';
+  txt.textContent = ok ? 'Supabase — Холбогдсон' : 'Холболт алдаа';
+}
+// ============================================================
+// RENDER STATIONS (INLINE onclick-ийг болиулсан)
+// ============================================================
+function renderStations(stations) {
+  const icons = ['⚡','🔌','🏭','⚙️','🔋','📡','🔧','💡'];
+  const el = document.getElementById('station-list');
+
+  if (!stations.length) {
+    el.innerHTML = '<div class="center-msg" style="height:100px"><p>Станц олдсонгүй</p></div>';
+    return;
+  }
+
+  el.innerHTML = stations.map((s, i) => `
+    <div class="station-item ${currentStation === s.name ? 'active' : ''}" data-station="${escapeHtml(s.name)}">
+      <div class="station-icon">${icons[i % icons.length]}</div>
+      <div class="station-name">${escapeHtml(s.name)}</div>
+      <div class="station-count">${s.count}</div>
+    </div>
+  `).join('');
+
+  // Click handler
+  el.querySelectorAll('.station-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const name = item.getAttribute('data-station');
+      selectStation(name);
+    });
+  });
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+
+// ============================================================
+// SELECT STATION (filter + fallback)
+// ============================================================
+async function selectStation(name) {
+  currentStation = name;
+  currentEquipFilter = '';
+  document.getElementById('equip-filter').value = '';
+
+  // Sidebar active update
+  document.querySelectorAll('.station-item').forEach(el => {
+    const n = el.getAttribute('data-station');
+    el.classList.toggle('active', n === name);
+  });
+
+  // Header update
+  document.getElementById('main-title').textContent = name;
+
+  document.getElementById('table-area').innerHTML = `
+    <div class="center-msg">
+      <div class="loading-bar"></div>
+      <p>Тавилын карт уншиж байна...</p>
+    </div>`;
+
+  try {
+    const { raw, unquoted } = normalizeName(name);
+
+    // 1) Эхний оролдлого: яг raw нэрээр нь
+    let data = await supabase(
+      'v_settings_full',
+      `?select=station_name,equipment_name,equipment_type,parameter_name,set_value,set_value_text,unit,is_verified,updated_by_name` +
+      `&station_name=eq.${encodeFilterValue(raw)}` +
+      `&order=equipment_name.asc,parameter_name.asc` +
+      `&limit=5000`
+    );
+
+    // 2) Fallback: гаднах quote/trim-ийг авсан нэрээр нь (0 мөр бол)
+    if (Array.isArray(data) && data.length === 0 && unquoted !== raw) {
+      data = await supabase(
+        'v_settings_full',
+        `?select=station_name,equipment_name,equipment_type,parameter_name,set_value,set_value_text,unit,is_verified,updated_by_name` +
+        `&station_name=eq.${encodeFilterValue(unquoted)}` +
+        `&order=equipment_name.asc,parameter_name.asc` +
+        `&limit=5000`
+      );
+    }
+
+    console.log('[selectStation] name:', name, 'raw:', raw, 'unquoted:', unquoted, 'rows:', data?.length);
+
+    currentData = Array.isArray(data) ? data : [];
+
+    // Stats + meta
+    const equips = new Set(currentData.map(r => r.equipment_name).filter(Boolean));
+    const verified = currentData.filter(r => r.is_verified).length;
+
+    document.getElementById('stat-equip').textContent = equips.size;
+    document.getElementById('stat-settings').textContent = currentData.length;
+    document.getElementById('stat-verified').textContent = verified;
+    document.getElementById('main-meta').textContent =
+      `${equips.size} тоноглол · ${currentData.length} тавилын утга`;
+
+    // Equipment filter options
+    const filterEl = document.getElementById('equip-filter');
+    filterEl.innerHTML = '<option value="">Бүх тоноглол</option>' +
+      [...equips].sort().map(e => `<option value="${escapeHtml(e)}">${escapeHtml(e)}</option>`).join('');
+
+    renderTable(currentData);
+  } catch (e) {
+    console.error(e);
+    document.getElementById('table-area').innerHTML = `
+      <div class="center-msg">
+        <div class="icon">⚠️</div>
+        <p>Алдаа: ${escapeHtml(e.message)}</p>
+        <p style="font-size:12px">F12 → Console дээр алдааны дэлгэрэнгүйг харна уу.</p>
+      </div>`;
+  }
+}
+
+// ============================================================
+// RENDER TABLE
+// ============================================================
+function renderTable(data) {
+  if (!data || !data.length) {
+    document.getElementById('table-area').innerHTML = `
+      <div class="center-msg">
+        <div class="icon">📭</div>
+        <p>Өгөгдөл байхгүй</p>
+      </div>`;
+    return;
+  }
+
+  let lastEquip = null;
+  const rows = data.map(r => {
+    const isNewEquip = r.equipment_name !== lastEquip;
+    lastEquip = r.equipment_name;
+
+    const equipCell = isNewEquip
+      ? `<span class="equip-badge">${escapeHtml(r.equipment_name || '—')}</span>`
+      : `<span style="color:var(--border)">│</span>`;
+
+    const val = r.set_value !== null && r.set_value !== undefined
+      ? `<span class="value-cell">${escapeHtml(r.set_value)}</span>`
+      : r.set_value_text
+        ? `<span class="value-cell" style="color:var(--warn)">${escapeHtml(r.set_value_text)}</span>`
+        : `<span class="value-null">—</span>`;
+
+    const unit = r.unit && r.unit !== r.parameter_name
+      ? `<span class="unit-badge">${escapeHtml(r.unit)}</span>` : '';
+
+    return `<tr>
+      <td>${equipCell}</td>
+      <td><span class="ham-func">${escapeHtml(r.equipment_type || '')}</span></td>
+      <td class="param-name">${escapeHtml(r.parameter_name || '—')}</td>
+      <td>${val} ${unit}</td>
+      <td><span style="font-size:11px;color:var(--muted)">${escapeHtml(r.updated_by_name || '—')}</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('table-area').innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Тоноглол</th>
+          <th>Төрөл</th>
+          <th>Параметр</th>
+          <th>Тавил</th>
+          <th>Засварласан</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ============================================================
+// FILTER
+// ============================================================
+document.getElementById('equip-filter').addEventListener('change', function() {
+  currentEquipFilter = this.value;
+  const filtered = currentEquipFilter
+    ? currentData.filter(r => r.equipment_name === currentEquipFilter)
+    : currentData;
+  renderTable(filtered);
+});
+
+document.getElementById('station-search').addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  const filtered = allStations.filter(s => s.name.toLowerCase().includes(q));
+  renderStations(filtered);
+});
+
+// ============================================================
+// EXPORT CSV (filter-оо дагадаг болсон)
+// ============================================================
+function exportCSV() {
+  if (!currentData.length) return showToast('Өгөгдөл байхгүй', 'error');
+
+  const dataToExport = currentEquipFilter
+    ? currentData.filter(r => r.equipment_name === currentEquipFilter)
+    : currentData;
+
+  if (!dataToExport.length) return showToast('Экспортлох өгөгдөл байхгүй', 'error');
+
+  const headersRow = ['Станц', 'Тоноглол', 'Параметр', 'Тавил', 'Нэгж'];
+  const rows = dataToExport.map(r => [
+    r.station_name ?? '',
+    r.equipment_name ?? '',
+    r.parameter_name ?? '',
+    (r.set_value ?? r.set_value_text ?? ''),
+    r.unit ?? ''
+  ]);
+
+  const csv = [headersRow, ...rows]
+    .map(r => r.map(x => `"${String(x).replaceAll('"','""')}"`).join(','))
+    .join('\n');
+
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
+  a.download = `${(currentStation || 'station')}_тавил.csv`;
+  a.click();
+  showToast('✅ CSV татагдлаа', 'success');
+}
+
+function refreshData() {
+  if (currentStation) selectStation(currentStation);
+}
+
+// Buttons
+document.getElementById('btn-csv').addEventListener('click', exportCSV);
+document.getElementById('btn-refresh').addEventListener('click', refreshData);
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ============================================================
+// START
+// ============================================================
+init();
+</script>
+</body>
+</html>
