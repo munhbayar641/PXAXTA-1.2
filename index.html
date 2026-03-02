@@ -62,6 +62,23 @@ body::before {
 @keyframes pulse {
   0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)}
 }
+
+/* NAV (шинэ нэмсэн) */
+.nav{
+  display:flex; gap:8px; flex-wrap:wrap;
+  margin-left:10px;
+}
+.nav a{
+  text-decoration:none;
+  font-size:12px;
+  color:var(--muted);
+  border:1px solid var(--border);
+  padding:6px 10px;
+  border-radius:8px;
+}
+.nav a:hover{ border-color:var(--accent); color:var(--accent); background:rgba(0,212,255,0.06); }
+.nav a.active{ color:#fff; border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+
 .header-status {
   margin-left: auto;
   font-family: var(--mono); font-size: 11px; color: var(--muted);
@@ -160,7 +177,6 @@ body::before {
 .equip-multiselect-item:hover { background: rgba(0,212,255,.06); }
 .equip-multiselect-item input { accent-color: var(--accent); cursor: pointer; }
 
-/* Voltage modal */
 .volt-modal-backdrop {
   position: fixed; inset: 0; background: rgba(15,23,42,.75);
   display: none; align-items: center; justify-content: center;
@@ -285,6 +301,15 @@ tr:hover td { background: rgba(0,212,255,.02); }
 <body>
 <div class="header">
   <div class="logo"><div class="logo-dot"></div>РХАХТА · ТАВИЛЫН КАРТ</div>
+
+  <!-- NAV (шинэ нэмсэн) -->
+  <div class="nav">
+    <a href="index.html" class="active">Тавилын карт</a>
+    <a href="RH_sudalgaa.html">Реле судалгаа</a>
+    <a href="chat.html">Chat</a>
+    <a href="dashboard.html">Dashboard</a>
+  </div>
+
   <div class="header-status">
     <div class="status-dot" id="conn-dot"></div>
     <span id="conn-text">Холбогдож байна...</span>
@@ -465,19 +490,16 @@ function normalizeCtText(v) {
 function formatTs(ts) {
   if (!ts) return '';
   const s = String(ts);
-  // ISO "2026-03-02T05:23:45.123Z" -> "2026-03-02 05:23:45"
   return s.slice(0, 19).replace('T', ' ');
 }
 
 function normalizeHistory(arr) {
   const list = Array.isArray(arr) ? arr.filter(Boolean) : [];
-  // sort newest -> oldest (ts байхгүй бол сүүлд)
   list.sort((a, b) => {
     const at = a?.ts ? Date.parse(a.ts) : 0;
     const bt = b?.ts ? Date.parse(b.ts) : 0;
     return bt - at;
   });
-  // dedupe (value + ts)
   const seen = new Set();
   const out = [];
   for (const h of list) {
@@ -523,21 +545,9 @@ function openVoltModal() {
 
   modal.classList.add('open');
 }
-
-function closeVoltModal() {
-  document.getElementById('volt-modal').classList.remove('open');
-}
-
-function clearVoltFilter() {
-  selectedVolts.clear();
-  closeVoltModal();
-  applyFilters();
-}
-
-function applyVoltModal() {
-  closeVoltModal();
-  applyFilters();
-}
+function closeVoltModal() { document.getElementById('volt-modal').classList.remove('open'); }
+function clearVoltFilter() { selectedVolts.clear(); closeVoltModal(); applyFilters(); }
+function applyVoltModal() { closeVoltModal(); applyFilters(); }
 
 // ============================================================
 // SELECT STATION (шинэ schema)
@@ -566,7 +576,7 @@ async function selectStation(stationId, stationName) {
   document.getElementById('prot-filter-btn').textContent = 'Бүх хамгаалалт';
 
   document.getElementById('table-area').innerHTML =
-    `<div class="center-msg"><div class="loading-bar"></div><p>Уншиж байна...</p></div>`;
+    '<div class="center-msg"><div class="loading-bar"></div><p>Уншиж байна...</p></div>';
 
   try {
     const { data, error } = await sb
@@ -612,6 +622,7 @@ async function selectStation(stationId, stationName) {
       `${equips.size} тоноглол · ${rawData.length} тавилын утга`;
 
     const collator = new Intl.Collator('mn', { sensitivity: 'base' });
+
     const eqList = [...equips].sort((a,b)=>collator.compare(a,b));
     const dropEl = document.getElementById('equip-filter-dropdown');
     dropEl.innerHTML = eqList.map(e => `
@@ -677,7 +688,6 @@ function updateEquipFilterLabel() {
   const btn = document.getElementById('equip-filter-btn');
   btn.textContent = (selectedEquips.size === 0) ? 'Бүх тоноглол' : `${selectedEquips.size} сонгосон`;
 }
-
 function updateProtFilterLabel() {
   const btn = document.getElementById('prot-filter-btn');
   btn.textContent = (selectedProts.size === 0) ? 'Бүх хамгаалалт' : `${selectedProts.size} хамгаалалт`;
@@ -721,8 +731,8 @@ function renderTableExcel(data) {
       <th style="width:70px">Шатлал</th>
       <th style="width:170px">Параметр</th>
       <th style="width:120px">Тавил</th>
-            <th style=\"width:120px\">Огноо</th>
-<th style="width:90px">Нэгж</th>
+      <th style="width:120px">Огноо</th>
+      <th style="width:90px">Нэгж</th>
       <th style="width:150px">Өмнөх 1</th>
       <th style="width:150px">Өмнөх 2</th>
     </tr></thead><tbody>`;
@@ -760,7 +770,6 @@ function renderTableExcel(data) {
         html += `<tr data-id="${id}">`;
 
         if (!eqPrinted) {
-          // ДД + Тоноглол + Кт: тоноглолын блок дээр нэг удаа (rowspan)
           html += `<td rowspan="${eqRowspan}"><div class="td-inner">${dd}</div></td>`;
           html += `<td rowspan="${eqRowspan}">
                     <div class="td-inner" style="font-weight:700;color:#fff">${escapeHtml(eq)}</div>
@@ -793,11 +802,9 @@ function renderTableExcel(data) {
 
         const d0 = (r.updated_at ? String(r.updated_at).slice(0,10) : '');
         html += `<td><div class="td-inner">${d0 ? '/' + d0 + '/' : ''}</div></td>`;
-
         html += `<td><div class="td-inner">${r.unit ? escapeHtml(r.unit) : ''}</div></td>`;
         html += `<td><div class="td-inner">${escapeHtml(h1)}</div></td>`;
         html += `<td><div class="td-inner">${escapeHtml(h2)}</div></td>`;
-
         html += `</tr>`;
       });
     });
@@ -867,7 +874,6 @@ async function saveChanges() {
       ts: new Date().toISOString(),
       by: 'web',
     };
-    // "Өмнөх 1/2" зөвхөн 2 ширхэг хадгална; 3 дахь өөрчлөлт дээр хамгийн хуучин нь автоматаар хасагдана.
     const nextHistory = normalizeHistory([prevEntry, ...prevHistory]);
 
     const body = isNaN(numVal)
@@ -912,7 +918,7 @@ function exportCSV() {
     r.stage ?? '',
     r.param_code || '',
     r.value_display ?? '',
-        (r.updated_at ? '/' + String(r.updated_at).slice(0,10) + '/' : ''),
+    (r.updated_at ? '/' + String(r.updated_at).slice(0,10) + '/' : ''),
     r.unit || ''
   ]);
   const csv = [h,...rows].map(r=>r.map(c=>`"${String(c).replaceAll('"','""')}"`).join(',')).join('\n');
