@@ -1,952 +1,263 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="mn">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>РХАХТА — Тавилын карт</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #060a12;
-  --panel: #0c1220;
-  --panel2: #0f1828;
-  --border: #1a2d4a;
-  --border2: #243d5e;
-  --accent: #00d4ff;
-  --accent2: #e94560;
-  --success: #00ff88;
-  --warn: #ffb300;
-  --text: #c8d8f0;
-  --muted: #4a6080;
-  --mono: 'Share Tech Mono', monospace;
-  --sans: 'Exo 2', sans-serif;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: var(--sans);
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none; z-index: 0;
-}
-.header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(6,10,18,0.97);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  display: flex; align-items: center; gap: 12px;
-  height: 52px;
-}
-.logo {
-  font-family: var(--mono);
-  font-size: 13px; color: var(--accent);
-  letter-spacing: 2px;
-  display: flex; align-items: center; gap: 8px;
-}
-.logo-dot {
-  width: 7px; height: 7px;
-  background: var(--accent); border-radius: 50%;
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)}
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>РХАХТА • Home</title>
 
-/* NAV (шинэ нэмсэн) */
-.nav{
-  display:flex; gap:8px; flex-wrap:wrap;
-  margin-left:10px;
-}
-.nav a{
-  text-decoration:none;
-  font-size:12px;
-  color:var(--muted);
-  border:1px solid var(--border);
-  padding:6px 10px;
-  border-radius:8px;
-}
-.nav a:hover{ border-color:var(--accent); color:var(--accent); background:rgba(0,212,255,0.06); }
-.nav a.active{ color:#fff; border-color:var(--accent); box-shadow:0 0 0 1px var(--accent); }
+  <style>
+    :root{
+      --bg0:#070a12; --bg1:#0a0f1f;
+      --panel:rgba(11,19,38,.72);
+      --line:rgba(70,208,255,.18);
+      --line2:rgba(70,208,255,.35);
+      --text:#d7e6ff; --muted:#7f96bd;
+      --accent:#46d0ff; --accent2:#48ff9a;
+      --shadow: 0 20px 70px rgba(0,0,0,.55);
+      --r:14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% -10%, rgba(70,208,255,.16), transparent 55%),
+        radial-gradient(900px 600px at 90% 0%, rgba(72,255,154,.10), transparent 55%),
+        radial-gradient(700px 500px at 70% 110%, rgba(70,208,255,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
+      min-height:100vh;
+    }
+    .grid{
+      position:fixed; inset:0; pointer-events:none; opacity:.28;
+      background-image:
+        linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(closest-side at 50% 20%, black 20%, transparent 78%);
+    }
+    .wrap{max-width:1200px; margin:0 auto; padding:18px 16px 28px;}
 
-.header-status {
-  margin-left: auto;
-  font-family: var(--mono); font-size: 11px; color: var(--muted);
-  display: flex; align-items: center; gap: 6px;
-}
-.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--warn); }
+    .panel{
+      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(11,19,38,.78), rgba(11,19,38,.38));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(10px);
+      overflow:hidden;
+    }
 
-.layout {
-  position: relative; z-index: 1;
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  height: calc(100vh - 52px);
-}
-.sidebar {
-  background: var(--panel);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-.sidebar-top { padding: 12px; border-bottom: 1px solid var(--border); }
-.search-box {
-  width: 100%;
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 8px; padding: 8px 12px;
-  color: var(--text); font-family: var(--sans); font-size: 13px;
-  outline: none; transition: border-color .2s;
-}
-.search-box:focus { border-color: var(--accent); }
-.search-box::placeholder { color: var(--muted); }
+    /* Top bar */
+    .topbar{
+      display:flex; align-items:center; gap:14px;
+      padding:14px 16px;
+    }
+    .logoRound{
+      width:42px;height:42px;border-radius:14px; overflow:hidden;
+      border:1px solid rgba(70,208,255,.35);
+      background:rgba(10,15,31,.75);
+      display:grid; place-items:center;
+    }
+    .logoRound img{width:100%;height:100%;object-fit:cover;display:block}
+    .brand{display:flex; flex-direction:column; gap:2px; min-width:240px;}
+    .brand .title{font-weight:900; letter-spacing:.4px; font-size:18px;}
+    .brand .sub{color:var(--muted); font-size:12px;}
+    .spacer{flex:1}
+    .pill{
+      display:flex; align-items:center; gap:10px;
+      padding:10px 12px; border-radius:12px;
+      border:1px solid rgba(70,208,255,.18);
+      background:rgba(9,12,22,.55);
+      color:var(--muted); font-size:12px; white-space:nowrap;
+    }
+    .dot{width:10px;height:10px;border-radius:50%; background:var(--accent2); box-shadow:0 0 18px rgba(72,255,154,.45);}
 
-.station-list { flex: 1; overflow-y: auto; padding: 6px; }
-.station-list::-webkit-scrollbar { width: 3px; }
-.station-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    /* Layout */
+    .content{margin-top:16px; display:grid; grid-template-columns: 360px 1fr; gap:16px;}
+    @media (max-width: 980px){ .content{grid-template-columns:1fr;} }
 
-.station-item {
-  padding: 9px 11px; border-radius: 8px;
-  cursor: pointer; border: 1px solid transparent;
-  margin-bottom: 2px; transition: all .15s;
-  display: flex; align-items: center; gap: 9px;
-}
-.station-item:hover { background: rgba(0,212,255,.04); border-color: var(--border); }
-.station-item.active { background: rgba(0,212,255,.08); border-color: var(--accent); }
-.s-icon {
-  width: 26px; height: 26px; flex-shrink: 0;
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 6px; display: flex; align-items: center; justify-content: center;
-  font-size: 12px;
-}
-.station-item.active .s-icon { border-color: var(--accent); }
-.s-name { font-size: 12px; font-weight: 600; flex: 1; color: var(--text); }
-.s-count {
-  font-family: var(--mono); font-size: 10px; color: var(--muted);
-  background: var(--bg); padding: 2px 5px; border-radius: 4px;
-}
-.station-item.active .s-count { color: var(--accent); }
+    /* Left */
+    .menu{padding:14px;}
+    .menu h3{margin:0 0 10px; font-size:13px; letter-spacing:.3px; color:var(--muted);}
+    .nav{display:flex; flex-direction:column; gap:10px;}
+    .nav a{
+      text-decoration:none; color:var(--text);
+      padding:12px 12px; border-radius:12px;
+      border:1px solid rgba(70,208,255,.14);
+      background:rgba(7,10,18,.35);
+      display:flex; align-items:center; justify-content:space-between;
+      transition: transform .12s ease, border-color .12s ease, background .12s ease;
+    }
+    .nav a:hover{transform:translateY(-1px); border-color:var(--line2); background:rgba(11,19,38,.55);}
+    .tag{font-size:11px; color:rgba(215,230,255,.78); border:1px solid rgba(72,255,154,.20); background:rgba(72,255,154,.06); padding:4px 8px; border-radius:999px;}
 
-.main { display: flex; flex-direction: column; overflow: hidden; }
-.topbar {
-  padding: 12px 20px; border-bottom: 1px solid var(--border);
-  background: var(--panel);
-  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
-}
-.station-title { font-size: 17px; font-weight: 800; color: #fff; }
-.station-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
-.topbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    /* Right */
+    .main{padding:14px;}
+    .banner{
+      border-radius:14px;
+      border:1px solid rgba(70,208,255,.16);
+      background:rgba(7,10,18,.28);
+      overflow:hidden;
+      display:grid;
+    }
+    .banner img{
+      width:100%;
+      height:220px;
+      object-fit:cover;
+      display:block;
+      filter: contrast(1.05) saturate(1.05);
+    }
+    @media (max-width:700px){
+      .banner img{height:160px;}
+    }
 
-.fsel {
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 7px; padding: 6px 10px;
-  color: var(--text); font-family: var(--sans); font-size: 12px;
-  outline: none; cursor: pointer; min-width: 150px;
-}
-.fsel:focus { border-color: var(--accent); }
+    .stats{display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin:14px 0;}
+    @media (max-width:980px){ .stats{grid-template-columns: repeat(2, 1fr);} }
 
-.equip-multiselect { position: relative; min-width: 180px; }
-.equip-multiselect-btn {
-  width: 100%; text-align: left;
-  background: var(--bg); border: 1px solid var(--border);
-  border-radius: 7px; padding: 6px 28px 6px 10px;
-  color: var(--text); font-family: var(--sans); font-size: 12px;
-  cursor: pointer; display: flex; align-items: center; justify-content: space-between;
-}
-.equip-multiselect-btn:hover { border-color: var(--accent); }
-.equip-multiselect-btn::after { content: '▾'; position: absolute; right: 10px; font-size: 10px; color: var(--muted); }
-.equip-multiselect-dropdown {
-  display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 2px;
-  background: var(--panel); border: 1px solid var(--border); border-radius: 8px;
-  max-height: 280px; overflow-y: auto; z-index: 50;
-  box-shadow: 0 8px 24px rgba(0,0,0,.4);
-}
-.equip-multiselect.open .equip-multiselect-dropdown { display: block; }
-.equip-multiselect-item {
-  padding: 6px 10px; cursor: pointer; display: flex; align-items: center; gap: 8px;
-  font-size: 12px; transition: background .1s;
-}
-.equip-multiselect-item:hover { background: rgba(0,212,255,.06); }
-.equip-multiselect-item input { accent-color: var(--accent); cursor: pointer; }
+    .stat{
+      padding:12px; border-radius:12px;
+      border:1px solid rgba(70,208,255,.14);
+      background:rgba(7,10,18,.35);
+    }
+    .stat .k{font-size:11px;color:var(--muted);}
+    .stat .v{margin-top:6px;font-size:20px;font-weight:900;letter-spacing:.2px; display:flex; gap:8px; align-items:baseline;}
+    .stat .v small{color:var(--muted);font-weight:700;font-size:12px;}
 
-.volt-modal-backdrop {
-  position: fixed; inset: 0; background: rgba(15,23,42,.75);
-  display: none; align-items: center; justify-content: center;
-  z-index: 200;
-}
-.volt-modal-backdrop.open { display: flex; }
-.volt-modal {
-  width: 360px; max-width: 95%;
-  background: var(--panel); border-radius: 10px;
-  border: 1px solid var(--border);
-  box-shadow: 0 18px 40px rgba(0,0,0,.5);
-  overflow: hidden;
-}
-.volt-modal-header {
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between;
-  font-size: 13px; font-weight: 600;
-}
-.volt-modal-body {
-  max-height: 260px; overflow-y: auto;
-  padding: 10px 16px;
-}
-.volt-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 0; font-size: 13px; cursor: pointer;
-}
-.volt-item span { color: var(--text); }
-.volt-modal-footer {
-  padding: 10px 16px;
-  border-top: 1px solid var(--border);
-  display: flex; justify-content: flex-end; gap: 8px;
-}
+    .cards{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+    @media (max-width:700px){ .cards{grid-template-columns:1fr;} }
 
-.btn {
-  padding: 6px 14px; border-radius: 7px; border: none;
-  font-family: var(--sans); font-size: 12px; font-weight: 600;
-  cursor: pointer; transition: all .15s;
-  display: flex; align-items: center; gap: 5px;
-}
-.btn-primary { background: var(--accent); color: #000; }
-.btn-primary:hover { background: #00b8d9; }
-.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--text); }
-.btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
-.btn-save { background: var(--success); color: #000; }
-.btn-save:hover { background: #00d974; }
-
-.stats-row {
-  display: grid; grid-template-columns: repeat(4,1fr);
-  gap: 1px; background: var(--border);
-  border-bottom: 1px solid var(--border);
-}
-.stat-card {
-  background: var(--panel); padding: 12px 16px;
-  display: flex; align-items: center; gap: 10px;
-}
-.stat-val { font-family: var(--mono); font-size: 18px; font-weight: 700; color: var(--accent); line-height: 1; }
-.stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; }
-
-.table-area { flex: 1; overflow: auto; }
-table{ width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; }
-thead{ position:sticky; top:0; z-index:10; }
-th{
-  background:#08111e; padding:8px 10px; text-align:center;
-  font-size:10px; font-weight:800; letter-spacing:.8px; text-transform:uppercase;
-  color:var(--muted); border:1px solid rgba(26,45,74,.55); white-space:nowrap;
-}
-td{
-  padding:0; border:1px solid rgba(26,45,74,.45);
-  vertical-align:middle; background:rgba(6,10,18,.25);
-}
-.td-inner{ padding:7px 10px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-tr:hover td { background: rgba(0,212,255,.02); }
-
-.edit-input{
-  width: 110px;
-  background: rgba(0,212,255,.05);
-  border: 1px solid var(--accent);
-  border-radius: 5px; padding: 4px 8px;
-  color: var(--success); font-family: var(--mono);
-  font-size: 13px; outline: none;
-}
-.edit-input:focus { box-shadow: 0 0 0 2px rgba(0,212,255,.2); }
-
-.center-msg {
-  display:flex; flex-direction:column;
-  align-items:center; justify-content:center;
-  height:100%; gap:12px; color:var(--muted);
-}
-.c-icon { font-size:42px; opacity:.3; }
-.loading-bar { width:180px; height:2px; background:var(--border); border-radius:1px; overflow:hidden; }
-.loading-bar::after{
-  content:''; display:block; height:100%; width:40%;
-  background:var(--accent); border-radius:1px; animation:lb 1s infinite;
-}
-@keyframes lb { 0%{transform:translateX(-100%)} 100%{transform:translateX(350%)} }
-
-.toast {
-  position: fixed; bottom: 20px; right: 20px;
-  background: var(--panel); border: 1px solid var(--border);
-  border-radius: 10px; padding: 11px 16px; font-size: 13px;
-  z-index: 1000; transform: translateY(70px); opacity: 0;
-  transition: all .3s ease; display: flex; align-items: center; gap: 8px;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { border-color: var(--success); }
-.toast.error { border-color: var(--accent2); }
-.toast.warn { border-color: var(--warn); }
-
-.unsaved-badge {
-  display:none;
-  background: rgba(255,179,0,.15);
-  border: 1px solid var(--warn);
-  color: var(--warn);
-  padding: 2px 8px; border-radius: 5px;
-  font-size: 11px; font-family: var(--mono);
-}
-.unsaved-badge.visible { display:inline-block; }
-</style>
+    .card{
+      padding:14px; border-radius:14px;
+      border:1px solid rgba(70,208,255,.18);
+      background:linear-gradient(180deg, rgba(7,10,18,.35), rgba(7,10,18,.20));
+      position:relative; overflow:hidden;
+    }
+    .card:before{
+      content:"";
+      position:absolute; inset:-2px;
+      background: radial-gradient(420px 180px at 20% 20%, rgba(70,208,255,.18), transparent 60%),
+                  radial-gradient(320px 160px at 80% 90%, rgba(72,255,154,.12), transparent 55%);
+      opacity:.8; pointer-events:none;
+    }
+    .card > *{position:relative;}
+    .card h4{margin:0 0 8px; font-size:14px; letter-spacing:.2px;}
+    .card p{margin:0; color:rgba(215,230,255,.78); font-size:12px; line-height:1.5;}
+    .btnRow{margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;}
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      text-decoration:none; color:var(--text);
+      padding:10px 12px; border-radius:12px;
+      border:1px solid rgba(70,208,255,.22);
+      background:rgba(9,12,22,.55);
+      transition: transform .12s ease, border-color .12s ease;
+      font-size:12px; font-weight:700;
+    }
+    .btn:hover{transform:translateY(-1px); border-color:rgba(70,208,255,.45);}
+    .btn.green{border-color:rgba(72,255,154,.26);}
+    .footer{margin-top:12px; color:rgba(127,150,189,.85); font-size:11px; text-align:right;}
+  </style>
 </head>
 
 <body>
-<div class="header">
-  <div class="logo"><div class="logo-dot"></div>РХАХТА · ТАВИЛЫН КАРТ</div>
+  <div class="grid"></div>
 
-  <!-- NAV (шинэ нэмсэн) -->
-  <div class="nav">
-    <a href="index.html" class="active">Тавилын карт</a>
-    <a href="RH_sudalgaa.html">Реле судалгаа</a>
-    <a href="chat.html">Chat</a>
-    <a href="dashboard.html">Dashboard</a>
-  </div>
-
-  <div class="header-status">
-    <div class="status-dot" id="conn-dot"></div>
-    <span id="conn-text">Холбогдож байна...</span>
-  </div>
-</div>
-
-<div class="layout">
-  <div class="sidebar">
-    <div class="sidebar-top">
-      <input class="search-box" id="station-search" placeholder="🔍  Станц хайх..." type="text">
-    </div>
-    <div class="station-list" id="station-list">
-      <div class="center-msg" style="height:180px">
-        <div class="loading-bar"></div>
-        <p style="font-size:12px">Уншиж байна...</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="main">
-    <div class="topbar">
-      <div>
-        <div class="station-title" id="main-title">Станц сонгоно уу</div>
-        <div class="station-meta" id="main-meta">← Зүүн талаас сонгоно уу</div>
-      </div>
-      <div class="topbar-right">
-        <span class="unsaved-badge" id="unsaved-badge">● Хадгалаагүй өөрчлөлт</span>
-        <div class="fsel equip-multiselect" id="prot-filter-wrap">
-          <button type="button" class="equip-multiselect-btn" id="prot-filter-btn">Бүх хамгаалалт</button>
-          <div class="equip-multiselect-dropdown" id="prot-filter-dropdown"></div>
+  <div class="wrap">
+    <div class="panel">
+      <div class="topbar">
+        <div class="logoRound" title="Logo">
+          <!-- 1-р лого -->
+          <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27120%27%20height%3D%27120%27%3E%0A%20%20%20%20%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20x2%3D%271%27%20y1%3D%270%27%20y2%3D%271%27%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2346d0ff%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%2348ff9a%27/%3E%0A%20%20%20%20%3C/linearGradient%3E%3C/defs%3E%0A%20%20%20%20%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20rx%3D%2718%27%20ry%3D%2718%27%20fill%3D%27url%28%23g%29%27/%3E%0A%20%20%20%20%3Ctext%20x%3D%2750%25%27%20y%3D%2754%25%27%20dominant-baseline%3D%27middle%27%20text-anchor%3D%27middle%27%0A%20%20%20%20%20%20font-family%3D%27Arial%27%20font-size%3D%2724%27%20font-weight%3D%27700%27%20fill%3D%27%23061018%27%3ERH%3C/text%3E%0A%20%20%20%20%3C/svg%3E" alt="Logo" />
         </div>
-        <div class="fsel equip-multiselect" id="equip-filter-wrap">
-          <button type="button" class="equip-multiselect-btn" id="equip-filter-btn">Бүх тоноглол</button>
-          <div class="equip-multiselect-dropdown" id="equip-filter-dropdown"></div>
+
+        <div class="brand">
+          <div class="title">РХАХТА • Улаанбаатар салбар</div>
+          <div class="sub">Home • Тавил ба Реле судалгаа</div>
         </div>
-        <button class="btn btn-ghost" type="button" onclick="openVoltModal()">Хүчдлийн түвшин</button>
 
-        <button class="btn btn-ghost" onclick="exportCSV()">⬇ CSV</button>
-        <button class="btn btn-save" id="save-btn" onclick="saveChanges()" style="display:none">💾 Хадгалах</button>
-        <button class="btn btn-primary" onclick="refreshData()">↻</button>
+        <div class="spacer"></div>
+
+        <div class="pill">
+          <span class="dot"></span>
+          <span>Online • Cloudflare Pages</span>
+        </div>
       </div>
     </div>
 
-    <div class="stats-row">
-      <div class="stat-card"><div style="font-size:18px">⚙️</div><div><div class="stat-val" id="st-equip">—</div><div class="stat-label">Тоноглол</div></div></div>
-      <div class="stat-card"><div style="font-size:18px">🛡️</div><div><div class="stat-val" id="st-prot">—</div><div class="stat-label">Хамгаалалт</div></div></div>
-      <div class="stat-card"><div style="font-size:18px">📋</div><div><div class="stat-val" id="st-params">—</div><div class="stat-label">Параметр</div></div></div>
-      <div class="stat-card"><div style="font-size:18px">🏢</div><div><div class="stat-val" id="st-total">—</div><div class="stat-label">Нийт станц</div></div></div>
-    </div>
+    <div class="content">
+      <!-- LEFT -->
+      <div class="panel">
+        <div class="menu">
+          <h3>Navigation</h3>
+          <div class="nav">
+            <a href="tavil.html">
+              <span>Тавилын карт</span>
+              <span class="tag">Open</span>
+            </a>
+            <a href="RH_sudalgaa.html">
+              <span>Реле судалгаа</span>
+              <span class="tag">Open</span>
+            </a>
+            
+          </div>
 
-    <div class="table-area" id="table-area">
-      <div class="center-msg">
-        <div class="c-icon">⚡</div>
-        <p>Станц сонгоод тавилын карт харна уу</p>
+          <div class="footer">© РХАХТА</div>
+        </div>
       </div>
+
+      <!-- RIGHT -->
+      <div class="panel">
+        <div class="main">
+
+          <!-- 2-р лого (banner) -->
+          <div class="banner" title="Banner">
+            <img src="data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%271600%27%20height%3D%27700%27%3E%0A%20%20%20%20%3Cdefs%3E%3ClinearGradient%20id%3D%27g%27%20x1%3D%270%27%20x2%3D%271%27%20y1%3D%270%27%20y2%3D%271%27%3E%0A%20%20%20%20%20%20%3Cstop%20offset%3D%270%27%20stop-color%3D%27%2346d0ff%27/%3E%3Cstop%20offset%3D%271%27%20stop-color%3D%27%2348ff9a%27/%3E%0A%20%20%20%20%3C/linearGradient%3E%3C/defs%3E%0A%20%20%20%20%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20rx%3D%2718%27%20ry%3D%2718%27%20fill%3D%27url%28%23g%29%27/%3E%0A%20%20%20%20%3Ctext%20x%3D%2750%25%27%20y%3D%2754%25%27%20dominant-baseline%3D%27middle%27%20text-anchor%3D%27middle%27%0A%20%20%20%20%20%20font-family%3D%27Arial%27%20font-size%3D%27140%27%20font-weight%3D%27700%27%20fill%3D%27%23061018%27%3E%D0%A0%D0%A5%D0%90%D0%A5%D0%A2%D0%90%3C/text%3E%0A%20%20%20%20%3C/svg%3E" alt="PXХТА Banner" />
+          </div>
+
+          <!-- жижиг статистик / мэдээлэл (чи хүсвэл бодит тоогоор соль) -->
+          <div class="stats">
+            <div class="stat">
+              <div class="k">Нийт станц</div>
+              <div class="v">38 <small>ш</small></div>
+            </div>
+            <div class="stat">
+              <div class="k">Тоноглол</div>
+              <div class="v">— <small>ш</small></div>
+            </div>
+            <div class="stat">
+              <div class="k">Хамгаалалт</div>
+              <div class="v">— <small>ш</small></div>
+            </div>
+            <div class="stat">
+              <div class="k">Параметр</div>
+              <div class="v">— <small>ш</small></div>
+            </div>
+          </div>
+
+          <!-- Home дээр харагдаж болох нэмэлт зүйлс -->
+          <div class="cards">
+            <div class="card">
+              <h4>Шуурхай нэвтрэх</h4>
+              <p>Чиний 2 үндсэн хуудсыг эндээс шууд нээнэ. Дараа нь нэмэлт хуудсууд (About/Docs гэх мэт) нэмэхэд бэлэн.</p>
+              <div class="btnRow">
+                <a class="btn" href="tavil.html">→ Тавилын карт</a>
+                <a class="btn green" href="RH_sudalgaa.html">→ Реле судалгаа</a>
+              </div>
+            </div>
+
+            <div class="card">
+              <h4>Сүүлд шинэчлэгдсэн</h4>
+              <p>Home дээр “сүүлд өөрчилсөн огноо”, “хийж буй ажил”, “үйлчилгээний мэдэгдэл” гэх мэт жижиг статус байрлуулж болно.</p>
+              <div class="btnRow">
+                <a class="btn" href="tavil.html">Open</a>
+                <a class="btn" href="RH_sudalgaa.html">Open</a>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<div class="volt-modal-backdrop" id="volt-modal">
-  <div class="volt-modal">
-    <div class="volt-modal-header">
-      <span>Хүчдлийн түвшингээр шүүх</span>
-      <button class="btn btn-ghost" type="button" onclick="closeVoltModal()">✕</button>
-    </div>
-    <div class="volt-modal-body" id="volt-modal-body"></div>
-    <div class="volt-modal-footer">
-      <button class="btn btn-ghost" type="button" onclick="clearVoltFilter()">Цэвэрлэх</button>
-      <button class="btn btn-primary" type="button" onclick="applyVoltModal()">Хадгалах</button>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script>
-// ============================================================
-// CONFIG (чиний шинэ project)
-// ============================================================
-const SB_URL  = 'https://skpitxwtpqwoaydoltft.supabase.co';
-const SB_KEY  = 'sb_publishable_0WG4j8BScWCUcbfJ77s8aA_gu2M7fuu';
-const sb = supabase.createClient(SB_URL, SB_KEY);
-
-// ============================================================
-// STATE
-// ============================================================
-let allStations = [];
-let currentStation = null;
-let currentStationId = null;
-let rawData = [];
-let filteredData = [];
-let pendingEdits = {};
-let selectedEquips = new Set();
-let selectedProts = new Set();
-let selectedVolts = new Set();
-
-// ============================================================
-// INIT
-// ============================================================
-async function init() {
-  try {
-    const { error: testErr } = await sb.from('stations').select('id').limit(1);
-    if (testErr) throw new Error(testErr.message);
-    setConn(true);
-
-    const { data: stData, error: stErr } = await sb
-      .from('stations')
-      .select('id,name')
-      .order('name');
-
-    if (stErr) throw new Error(stErr.message);
-
-    const collator = new Intl.Collator('mn', { sensitivity: 'base', numeric: true });
-    allStations = (stData || []).map(r => ({ id: r.id, name: r.name, equips: '—' }))
-      .sort((a,b) => collator.compare(a.name || '', b.name || ''));
-
-    renderSidebar(allStations);
-    document.getElementById('st-total').textContent = allStations.length;
-    toast('✅ Холбогдлоо!','success');
-  } catch(e) {
-    setConn(false);
-    toast('❌ Холболт алдаа: ' + e.message,'error');
-  }
-}
-
-function setConn(ok) {
-  document.getElementById('conn-dot').style.background = ok ? 'var(--success)' : 'var(--accent2)';
-  document.getElementById('conn-text').textContent = ok ? 'Supabase — Холбогдсон' : 'Холболт алдаа';
-}
-
-// ============================================================
-// SIDEBAR
-// ============================================================
-const ICONS = ['⚡','🔌','🏭','⚙️','🔋','📡','🔧','💡','🔩','⚗️'];
-
-function renderSidebar(stations) {
-  const el = document.getElementById('station-list');
-  if (!stations.length) {
-    el.innerHTML = '<div class="center-msg" style="height:80px"><p>Олдсонгүй</p></div>';
-    return;
-  }
-
-  el.innerHTML = stations.map((s,i) => `
-    <div class="station-item ${currentStation===s.name?'active':''}" data-id="${s.id}" data-name="${escapeHtml(s.name)}">
-      <div class="s-icon">${ICONS[i%ICONS.length]}</div>
-      <div class="s-name">${escapeHtml(s.name)}</div>
-      <div class="s-count">${s.equips}</div>
-    </div>`).join('');
-
-  el.querySelectorAll('.station-item').forEach(item => {
-    item.addEventListener('click', () => selectStation(item.dataset.id, item.dataset.name));
-  });
-}
-
-function escapeHtml(str='') {
-  return String(str)
-    .replaceAll('&','&amp;')
-    .replaceAll('<','&lt;')
-    .replaceAll('>','&gt;')
-    .replaceAll('"','&quot;')
-    .replaceAll("'","&#039;");
-}
-
-function normalizeCtText(v) {
-  if (v === null || v === undefined) return '';
-  const raw = Array.isArray(v) ? v.join(' ') : String(v);
-  let s = raw.trim();
-  if (!s) return '';
-  s = s.replace(/[,]+/g, ' ').replace(/\s+/g, ' ');
-  const parts = s.split(' ').filter(Boolean);
-  if (parts.length <= 1) return s;
-  const uniq = [];
-  for (const p of parts) if (!uniq.includes(p)) uniq.push(p);
-  return (uniq.length === 1) ? uniq[0] : uniq.join(' ');
-}
-
-function formatTs(ts) {
-  if (!ts) return '';
-  const s = String(ts);
-  return s.slice(0, 19).replace('T', ' ');
-}
-
-function normalizeHistory(arr) {
-  const list = Array.isArray(arr) ? arr.filter(Boolean) : [];
-  list.sort((a, b) => {
-    const at = a?.ts ? Date.parse(a.ts) : 0;
-    const bt = b?.ts ? Date.parse(b.ts) : 0;
-    return bt - at;
-  });
-  const seen = new Set();
-  const out = [];
-  for (const h of list) {
-    const v = (h?.value_num !== null && h?.value_num !== undefined) ? `n:${h.value_num}` : `t:${h?.value_text ?? ''}`;
-    const k = `${v}|${h?.ts ?? ''}`;
-    if (seen.has(k)) continue;
-    seen.add(k);
-    out.push(h);
-    if (out.length >= 2) break;
-  }
-  return out;
-}
-
-function openVoltModal() {
-  if (!rawData.length) return;
-  const modal = document.getElementById('volt-modal');
-  const body = document.getElementById('volt-modal-body');
-  const volts = Array.from(new Set(rawData
-    .map(r => r.voltage_kv)
-    .filter(v => v !== null && v !== undefined && v !== '')))
-    .sort((a,b) => Number(a) - Number(b));
-
-  if (!volts.length) {
-    body.innerHTML = '<div class="volt-item">Хүчдлийн түвшин алга</div>';
-  } else {
-    body.innerHTML = volts.map(v => {
-      const key = String(v);
-      const checked = selectedVolts.has(key) ? 'checked' : '';
-      return `<label class="volt-item">
-        <input type="checkbox" value="${key}" ${checked}>
-        <span>${key} кВ</span>
-      </label>`;
-    }).join('');
-  }
-
-  body.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      const key = cb.value;
-      if (cb.checked) selectedVolts.add(key);
-      else selectedVolts.delete(key);
-    });
-  });
-
-  modal.classList.add('open');
-}
-function closeVoltModal() { document.getElementById('volt-modal').classList.remove('open'); }
-function clearVoltFilter() { selectedVolts.clear(); closeVoltModal(); applyFilters(); }
-function applyVoltModal() { closeVoltModal(); applyFilters(); }
-
-// ============================================================
-// SELECT STATION (шинэ schema)
-// ============================================================
-async function selectStation(stationId, stationName) {
-  if (Object.keys(pendingEdits).length > 0) {
-    if (!confirm('Хадгалаагүй өөрчлөлт байна. Үргэлжлүүлэх үү?')) return;
-    pendingEdits = {};
-    updateUnsaved();
-  }
-
-  currentStation = stationName;
-  currentStationId = stationId;
-
-  document.querySelectorAll('.station-item').forEach(el =>
-    el.classList.toggle('active', el.dataset.id === stationId)
-  );
-
-  document.getElementById('main-title').textContent = stationName;
-  selectedEquips.clear();
-  selectedProts.clear();
-  selectedVolts.clear();
-  document.getElementById('equip-filter-dropdown').innerHTML = '';
-  document.getElementById('equip-filter-btn').textContent = 'Бүх тоноглол';
-  document.getElementById('prot-filter-dropdown').innerHTML = '';
-  document.getElementById('prot-filter-btn').textContent = 'Бүх хамгаалалт';
-
-  document.getElementById('table-area').innerHTML =
-    '<div class="center-msg"><div class="loading-bar"></div><p>Уншиж байна...</p></div>';
-
-  try {
-    const { data, error } = await sb
-      .from('settings')
-      .select(`
-        id, stage, value_num, value_text, updated_at, updated_by, history,
-        assets!inner(id,name,asset_type,voltage_kv,ct_ratio,station_id),
-        protection_functions!inner(code,name),
-        function_parameters!inner(param_code,unit,description)
-      `)
-      .eq('assets.station_id', stationId)
-      .order('name', { foreignTable: 'assets', ascending: true })
-      .order('code', { foreignTable: 'protection_functions', ascending: true })
-      .order('param_code', { foreignTable: 'function_parameters', ascending: true })
-      .order('stage', { ascending: true });
-
-    if (error) throw new Error(error.message);
-
-    rawData = (data || []).map(r => ({
-      settings_id: r.id,
-      equipment_name: r.assets?.name || '—',
-      equipment_type: r.assets?.asset_type || '',
-      voltage_kv: r.assets?.voltage_kv ?? null,
-      ct_text: normalizeCtText(r.assets?.ct_ratio) || '—',
-      func_code: r.protection_functions?.code || '',
-      func_name: r.protection_functions?.name || '',
-      stage: r.stage ?? '',
-      param_code: r.function_parameters?.param_code || '',
-      unit: r.function_parameters?.unit || '',
-      value_num: r.value_num ?? null,
-      value_text: r.value_text ?? null,
-      updated_at: r.updated_at ?? null,
-      value_display: (r.value_num !== null && r.value_num !== undefined) ? String(r.value_num) : (r.value_text ?? ''),
-      history: normalizeHistory(r.history),
-    }));
-
-    const equips = new Set(rawData.map(r => r.equipment_name));
-    const prots  = new Set(rawData.map(r => r.func_code).filter(Boolean));
-    document.getElementById('st-equip').textContent  = equips.size;
-    document.getElementById('st-prot').textContent   = prots.size;
-    document.getElementById('st-params').textContent = rawData.length;
-    document.getElementById('main-meta').textContent =
-      `${equips.size} тоноглол · ${rawData.length} тавилын утга`;
-
-    const collator = new Intl.Collator('mn', { sensitivity: 'base' });
-
-    const eqList = [...equips].sort((a,b)=>collator.compare(a,b));
-    const dropEl = document.getElementById('equip-filter-dropdown');
-    dropEl.innerHTML = eqList.map(e => `
-      <label class="equip-multiselect-item">
-        <input type="checkbox" value="${escapeHtml(e)}">
-        <span>${escapeHtml(e)}</span>
-      </label>
-    `).join('');
-    dropEl.querySelectorAll('input').forEach(cb => {
-      cb.addEventListener('change', () => {
-        if (cb.checked) selectedEquips.add(cb.value);
-        else selectedEquips.delete(cb.value);
-        updateEquipFilterLabel();
-        applyFilters();
-      });
-    });
-
-    const protList = [...prots].sort((a,b)=>collator.compare(a,b));
-    const protDrop = document.getElementById('prot-filter-dropdown');
-    protDrop.innerHTML = protList.map(p => `
-      <label class="equip-multiselect-item">
-        <input type="checkbox" value="${escapeHtml(p)}">
-        <span>${escapeHtml(p)}</span>
-      </label>
-    `).join('');
-    protDrop.querySelectorAll('input').forEach(cb => {
-      cb.addEventListener('change', () => {
-        if (cb.checked) selectedProts.add(cb.value);
-        else selectedProts.delete(cb.value);
-        updateProtFilterLabel();
-        applyFilters();
-      });
-    });
-
-    applyFilters();
-  } catch(e) {
-    document.getElementById('table-area').innerHTML =
-      `<div class="center-msg"><div class="c-icon">⚠️</div><p>${escapeHtml(e.message)}</p></div>`;
-  }
-}
-
-// ============================================================
-// FILTERS
-// ============================================================
-document.getElementById('equip-filter-btn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  document.getElementById('equip-filter-wrap').classList.toggle('open');
-});
-document.getElementById('equip-filter-wrap').addEventListener('click', e => e.stopPropagation());
-
-document.getElementById('prot-filter-btn').addEventListener('click', (e) => {
-  e.stopPropagation();
-  document.getElementById('prot-filter-wrap').classList.toggle('open');
-});
-document.getElementById('prot-filter-wrap').addEventListener('click', e => e.stopPropagation());
-
-document.addEventListener('click', () => {
-  document.getElementById('equip-filter-wrap').classList.remove('open');
-  document.getElementById('prot-filter-wrap').classList.remove('open');
-});
-
-function updateEquipFilterLabel() {
-  const btn = document.getElementById('equip-filter-btn');
-  btn.textContent = (selectedEquips.size === 0) ? 'Бүх тоноглол' : `${selectedEquips.size} сонгосон`;
-}
-function updateProtFilterLabel() {
-  const btn = document.getElementById('prot-filter-btn');
-  btn.textContent = (selectedProts.size === 0) ? 'Бүх хамгаалалт' : `${selectedProts.size} хамгаалалт`;
-}
-
-function applyFilters() {
-  filteredData = rawData.filter(r => {
-    const eqOk = selectedEquips.size === 0 || selectedEquips.has(r.equipment_name || '');
-    const protOk = selectedProts.size === 0 || selectedProts.has(r.func_code || '');
-    const voltKey = r.voltage_kv === null || r.voltage_kv === undefined ? '' : String(r.voltage_kv);
-    const voltOk = selectedVolts.size === 0 || selectedVolts.has(voltKey);
-    return eqOk && protOk && voltOk;
-  });
-  renderTableExcel(filteredData);
-}
-
-// ============================================================
-// RENDER TABLE
-// ============================================================
-function renderTableExcel(data) {
-  if (!data.length) {
-    document.getElementById('table-area').innerHTML =
-      '<div class="center-msg"><div class="c-icon">📭</div><p>Өгөгдөл байхгүй</p></div>';
-    return;
-  }
-
-  const eqOrder = [];
-  const eqMap = {};
-  data.forEach(r => {
-    const eq = r.equipment_name || '—';
-    if (!eqMap[eq]) { eqMap[eq] = []; eqOrder.push(eq); }
-    eqMap[eq].push(r);
-  });
-
-  let html = `<table>
-    <thead><tr>
-      <th style="width:50px">ДД</th>
-      <th style="width:240px">Тоноглолын нэр</th>
-      <th style="width:110px">Кт</th>
-      <th style="width:160px">Хамгаалалтын функц</th>
-      <th style="width:70px">Шатлал</th>
-      <th style="width:170px">Параметр</th>
-      <th style="width:120px">Тавил</th>
-      <th style="width:120px">Огноо</th>
-      <th style="width:90px">Нэгж</th>
-      <th style="width:150px">Өмнөх 1</th>
-      <th style="width:150px">Өмнөх 2</th>
-    </tr></thead><tbody>`;
-
-  let dd = 1;
-
-  eqOrder.forEach(eq => {
-    const rows = eqMap[eq];
-
-    const funcOrder = [];
-    const funcMap = {};
-    rows.forEach(r => {
-      const fn = r.func_code || '—';
-      if (!funcMap[fn]) { funcMap[fn] = []; funcOrder.push(fn); }
-      funcMap[fn].push(r);
-    });
-
-    const eqRowspan = funcOrder.reduce((sum, fn) => sum + funcMap[fn].length, 0);
-    let eqPrinted = false;
-
-    funcOrder.forEach(fn => {
-      const frows = funcMap[fn];
-      const fnRowspan = frows.length;
-      let fnPrinted = false;
-
-      frows.forEach(r => {
-        const id = r.settings_id;
-        const display = r.value_display ?? '';
-        const inputVal = (pendingEdits[id] !== undefined) ? pendingEdits[id] : display;
-
-        const h = normalizeHistory(r.history);
-        const h1 = h[0] ? histToText(h[0]) : '';
-        const h2 = h[1] ? histToText(h[1]) : '';
-
-        html += `<tr data-id="${id}">`;
-
-        if (!eqPrinted) {
-          html += `<td rowspan="${eqRowspan}"><div class="td-inner">${dd}</div></td>`;
-          html += `<td rowspan="${eqRowspan}">
-                    <div class="td-inner" style="font-weight:700;color:#fff">${escapeHtml(eq)}</div>
-                    <div class="td-inner" style="color:var(--muted);font-size:11px">${escapeHtml(r.equipment_type || '')}</div>
-                   </td>`;
-          html += `<td rowspan="${eqRowspan}"><div class="td-inner">${escapeHtml(r.ct_text || '—')}</div></td>`;
-          eqPrinted = true;
-          dd++;
-        }
-
-        if (!fnPrinted) {
-          html += `<td rowspan="${fnRowspan}">
-                    <div class="td-inner" style="font-weight:800">${escapeHtml(fn)}</div>
-                    ${r.func_name ? `<div class="td-inner" style="color:var(--muted);font-size:11px">${escapeHtml(r.func_name)}</div>` : ''}
-                   </td>`;
-          fnPrinted = true;
-        }
-
-        html += `<td><div class="td-inner">${escapeHtml(String(r.stage ?? ''))}</div></td>`;
-        html += `<td><div class="td-inner">${escapeHtml(r.param_code || '—')}</div></td>`;
-
-        html += `<td><div class="td-inner">
-                  <input class="edit-input"
-                    value="${escapeHtml(String(inputVal)).replace(/\"/g,'&quot;')}"
-                    data-orig="${escapeHtml(String(display)).replace(/\"/g,'&quot;')}"
-                    data-id="${id}"
-                    onchange="onEdit(this)"
-                    onfocus="this.select()">
-                </div></td>`;
-
-        const d0 = (r.updated_at ? String(r.updated_at).slice(0,10) : '');
-        html += `<td><div class="td-inner">${d0 ? '/' + d0 + '/' : ''}</div></td>`;
-        html += `<td><div class="td-inner">${r.unit ? escapeHtml(r.unit) : ''}</div></td>`;
-        html += `<td><div class="td-inner">${escapeHtml(h1)}</div></td>`;
-        html += `<td><div class="td-inner">${escapeHtml(h2)}</div></td>`;
-        html += `</tr>`;
-      });
-    });
-  });
-
-  html += `</tbody></table>`;
-  document.getElementById('table-area').innerHTML = html;
-}
-
-function histToText(h) {
-  const raw = (h.value_num !== null && h.value_num !== undefined) ? String(h.value_num) : String(h.value_text ?? '');
-  const v = raw.trim() ? raw.trim() : '—';
-  const ts = formatTs(h.ts);
-  return ts ? `${v} · ${ts}` : v;
-}
-
-// ============================================================
-// EDIT + SAVE
-// ============================================================
-function onEdit(input) {
-  const id = input.dataset.id;
-  const orig = (input.dataset.orig ?? '').trim();
-  const newVal = (input.value ?? '').trim();
-
-  if (newVal === orig) delete pendingEdits[id];
-  else {
-    pendingEdits[id] = newVal;
-    input.style.borderColor = 'var(--warn)';
-  }
-  updateUnsaved();
-}
-
-function updateUnsaved() {
-  const count = Object.keys(pendingEdits).length;
-  const badge = document.getElementById('unsaved-badge');
-  const saveBtn = document.getElementById('save-btn');
-
-  if (count > 0) {
-    badge.textContent = `● ${count} өөрчлөлт`;
-    badge.classList.add('visible');
-    saveBtn.style.display = 'flex';
-  } else {
-    badge.classList.remove('visible');
-    saveBtn.style.display = 'none';
-  }
-}
-
-async function saveChanges() {
-  const ids = Object.keys(pendingEdits);
-  if (!ids.length) return;
-
-  const btn = document.getElementById('save-btn');
-  btn.textContent = '⏳ Хадгалж байна...';
-  btn.disabled = true;
-
-  let saved = 0, failed = 0;
-
-  for (const id of ids) {
-    const val = pendingEdits[id];
-    const numVal = parseFloat(val);
-
-    const row = rawData.find(r => String(r.settings_id) === String(id));
-    const prevHistory = normalizeHistory(row?.history);
-    const prevEntry = {
-      value_num: row?.value_num ?? null,
-      value_text: row?.value_text ?? null,
-      ts: new Date().toISOString(),
-      by: 'web',
-    };
-    const nextHistory = normalizeHistory([prevEntry, ...prevHistory]);
-
-    const body = isNaN(numVal)
-      ? { value_num: null, value_text: val, updated_by: 'web', history: nextHistory }
-      : { value_num: numVal, value_text: null, updated_by: 'web', history: nextHistory };
-
-    try {
-      const { error } = await sb.from('settings').update(body).eq('id', id);
-      if (error) throw new Error(error.message);
-      saved++;
-      delete pendingEdits[id];
-    } catch(e) {
-      failed++;
-    }
-  }
-
-  btn.textContent = '💾 Хадгалах';
-  btn.disabled = false;
-
-  if (failed === 0) {
-    toast(`✅ ${saved} тавил хадгалагдлаа`, 'success');
-    updateUnsaved();
-    document.querySelectorAll('.edit-input').forEach(i => i.style.borderColor = 'var(--accent)');
-    await selectStation(currentStationId, currentStation);
-  } else {
-    toast(`⚠️ ${saved} хадгаллаа, ${failed} алдаа гарлаа`, 'warn');
-  }
-}
-
-// ============================================================
-// EXPORT + REFRESH + TOAST
-// ============================================================
-function exportCSV() {
-  if (!filteredData.length) { toast('Өгөгдөл байхгүй','error'); return; }
-  const h = ['Станц','Тоноглол','Төрөл','Кт','Хамгаалалт','Шатлал','Параметр','Тавил','Огноо','Нэгж'];
-  const rows = filteredData.map(r => [
-    currentStation,
-    r.equipment_name,
-    r.equipment_type || '',
-    r.ct_text || '',
-    r.func_code || '',
-    r.stage ?? '',
-    r.param_code || '',
-    r.value_display ?? '',
-    (r.updated_at ? '/' + String(r.updated_at).slice(0,10) + '/' : ''),
-    r.unit || ''
-  ]);
-  const csv = [h,...rows].map(r=>r.map(c=>`"${String(c).replaceAll('"','""')}"`).join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
-  a.download = `${currentStation}_тавил.csv`;
-  a.click();
-  toast('✅ CSV татагдлаа','success');
-}
-
-function refreshData() {
-  if (currentStationId) selectStation(currentStationId, currentStation);
-}
-
-function toast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(()=>t.classList.remove('show'), 3000);
-}
-
-// START + SEARCH
-init();
-document.getElementById('station-search').addEventListener('input', (e) => {
-  const q = (e.target.value || '').toLowerCase().trim();
-  const filtered = !q ? allStations : allStations.filter(s => (s.name || '').toLowerCase().includes(q));
-  renderSidebar(filtered);
-});
-</script>
 </body>
 </html>
