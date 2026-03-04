@@ -248,3 +248,87 @@ tr:hover td{background:rgba(75,214,255,.05)}
 [data-theme="light"] .card{background:rgba(255,255,255,.82);border-color:rgba(20,40,100,.14)}
 [data-theme="light"] .card:hover{background:rgba(255,255,255,.97);border-color:rgba(0,68,187,.4)}
 [data-theme="light"] .hero{background:rgba(255,255,255,.8)}
+/* ══════════════════════════════════════════════
+   MOBILE RESPONSIVE  (≤ 600px)
+   ══════════════════════════════════════════════ */
+@media(max-width:600px){
+  body{overflow:auto}
+  :root{--h:56px}
+
+  /* topbar: stack logo + nav */
+  .topbar{
+    flex-wrap:wrap;gap:6px;padding:8px 10px;
+    position:relative;
+  }
+  .brand{min-width:unset;padding:6px 10px;border-radius:14px;flex:1}
+  .brand img{height:28px}
+  .brand-text b{font-size:12px}
+  .brand-text span{display:none}
+
+  /* collapse nav into horizontal scroll row */
+  .nav{
+    order:3;width:100%;gap:3px;
+    padding:4px 0;border-top:1px solid var(--border);
+    overflow-x:auto;flex-wrap:nowrap;
+  }
+  .nav a{font-size:11px;padding:6px 10px;flex-shrink:0}
+
+  .topbar-right{gap:5px}
+  .conn-chip span:last-child{display:none} /* hide text, keep dot */
+  .conn-chip{padding:6px 8px}
+
+  /* auth chip — compact */
+  #rha-chip{padding:4px 7px;gap:5px}
+  #rha-chip span[title]{display:none} /* hide name on mobile */
+
+  /* page padding */
+  .page{padding:14px 12px}
+
+  /* hero */
+  .hero{padding:20px 16px 18px}
+  .hero-title{font-size:20px}
+  .hero-stats{gap:8px}
+  .hstat{padding:8px 10px;gap:7px}
+  .hstat-val{font-size:15px}
+
+  /* about section 2-col → 1-col */
+  div[style*="grid-template-columns:1fr 1fr"]{
+    display:flex!important;flex-direction:column!important;gap:14px!important;
+  }
+
+  /* cards grid */
+  .grid,.grid2{grid-template-columns:1fr!important;gap:10px}
+  .card{padding:16px}
+
+  /* two-panel layout → full width stacked */
+  .layout{grid-template-columns:1fr!important;grid-template-rows:auto 1fr}
+  .sidebar{height:220px;border-right:none;border-bottom:1px solid var(--border)}
+  .table-area{padding:8px}
+  table{font-size:11px}
+  th,td{padding:6px 8px}
+
+  /* alban bichig content */
+  .content{
+    grid-template-columns:1fr!important;
+    height:auto!important;
+    padding:10px;gap:10px;
+  }
+  .left{min-height:280px}
+  .split{grid-template-columns:100px 60px 1fr}
+
+  /* station schema */
+  .schema-grid{grid-template-columns:1fr!important}
+
+  /* stats row */
+  .stats-row{gap:7px;padding:8px 10px}
+  .stat-card{min-width:85px;padding:8px 10px;gap:7px}
+  .stat-val{font-size:15px}
+}
+
+/* tablet tweaks */
+@media(min-width:601px) and (max-width:860px){
+  .grid{grid-template-columns:1fr 1fr}
+  .grid2{grid-template-columns:1fr 1fr}
+  .hero-title{font-size:24px}
+  .content{grid-template-columns:280px 1fr}
+}
