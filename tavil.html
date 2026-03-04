@@ -63,7 +63,6 @@
   </div>
 </div>
 
-<div id="mob-sel-wrap"><select id="mob-sel" onchange="if(this.value){const s=allStations.find(x=>x.name===this.value);if(s)selectStation(s.name,s.id);}"><option value="">🏭 Станц сонгоно уу…</option></select></div>
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-top">
@@ -142,7 +141,7 @@ async function init(){
     const col=new Intl.Collator('mn',{sensitivity:'base',numeric:true});
     allStations=(stData||[]).map(r=>({id:r.id,name:r.name,equips:'—'})).sort((a,b)=>col.compare(a.name||'',b.name||''));
     renderSidebar(allStations);document.getElementById('st-total').textContent=allStations.length;
-    {const ms=document.getElementById('mob-sel');if(ms){ms.innerHTML='<option value="">🏭 Станц сонгоно уу…</option>';allStations.forEach(s=>{const o=document.createElement('option');o.value=s.name;o.textContent=s.name;ms.appendChild(o);});}}
+    {const ms=document.getElementById('mob-sel');if(ms){ms.innerHTML='<option value="">🏭 Станц сонгоно уу…</option>';allStations.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;ms.appendChild(o);});}}
     toast('✅ Холбогдлоо!','success');
   }catch(e){setConn(false);toast('❌ '+e.message,'error');}
 }
@@ -164,7 +163,7 @@ function clearVoltFilter(){selectedVolts.clear();closeVoltModal();applyFilters()
 function applyVoltModal(){closeVoltModal();applyFilters();}
 async function selectStation(stationId,stationName){
   if(Object.keys(pendingEdits).length>0){if(!confirm('Хадгалаагүй өөрчлөлт байна. Үргэлжлүүлэх үү?'))return;pendingEdits={};updateUnsaved();}
-  currentStation=stationName;currentStationId=stationId;{const ms=document.getElementById('mob-sel');if(ms)ms.value=stationName;}
+  currentStation=stationName;currentStationId=stationId;{const ms=document.getElementById('mob-sel');if(ms)ms.value=stationId||currentStationId;}
   document.querySelectorAll('.station-item').forEach(el=>el.classList.toggle('active',el.dataset.id===stationId));
   document.getElementById('main-title').textContent=stationName;
   selectedEquips.clear();selectedProts.clear();selectedVolts.clear();
@@ -254,6 +253,14 @@ function toggleTheme(){const b=document.body,t=b.getAttribute('data-theme')==='d
 init();
 document.getElementById('station-search').addEventListener('input',e=>{const q=(e.target.value||'').toLowerCase().trim();const filtered=!q?allStations:allStations.filter(s=>(s.name||'').toLowerCase().includes(q));renderSidebar(filtered);});
 </script>
+
+
+<!-- Mobile station select — outside .app to avoid iOS fixed-parent bug -->
+<div id="mob-sel-wrap">
+  <select id="mob-sel" onchange="if(this.value){const s=allStations.find(x=>x.id===this.value);if(s)selectStation(s.id,s.name);}">
+    <option value="">🏭 Станц сонгоно уу…</option>
+  </select>
+</div>
 
 <div class="mobile-nav" id="mnav">
   <div class="mobile-nav-close" onclick="document.getElementById('mnav').classList.remove('open')">✕</div>
