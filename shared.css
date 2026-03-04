@@ -267,11 +267,16 @@ tr:hover td{background:rgba(75,214,255,.05)}
   body{overflow:auto}
   :root{--h:auto}
 
-  /* ── Topbar: single compact row ── */
+  /* ── Topbar: fixed at top, never scrolls ── */
   .topbar{
     flex-wrap:nowrap;gap:6px;padding:7px 10px;
     align-items:center;
+    position:fixed!important;top:0;left:0;right:0;
+    z-index:200;
   }
+  /* Push content below fixed topbar */
+  .app{padding-top:50px}
+  .login-wrap{padding-top:60px}
 
   /* Brand: tiny pill, just logos + text, no "Stations·Settings" */
   .brand{
