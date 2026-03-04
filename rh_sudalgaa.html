@@ -8,6 +8,19 @@ td{padding:7px 12px;border:1px solid rgba(255,255,255,.05);background:rgba(7,10,
 td.wrap{white-space:normal}
 tr:hover td{background:rgba(75,214,255,.05)}
 </style>
+<style>
+@media(max-width:600px){
+  .sidebar{display:none!important}
+  #mob-sel-wrap{display:block!important}
+}
+#mob-sel-wrap{display:none;padding:8px 0}
+#mob-sel-wrap select{
+  width:100%;padding:12px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  color:var(--text);font-size:14px;font-weight:700;font-family:var(--font);
+  outline:none;cursor:pointer;
+}
+</style>
 </head>
 <body data-theme="dark">
 <div class="app">
@@ -32,9 +45,7 @@ tr:hover td{background:rgba(75,214,255,.05)}
   </div>
 </div>
 
-<div class="layout">
-  <!-- Mobile dropdown select (≤600px) -->
-  <select id="mob-station-sel" onchange="if(this.value)selectStation(this.value)"
+<div class="layout">  <select id="mob-station-sel" onchange="if(this.value)selectStation(this.value)"
     style="display:none;width:100%;padding:10px 14px;margin:8px 0 0;
     background:var(--card);border:1px solid var(--border);border-radius:14px;
     color:var(--text);font-size:14px;font-weight:700;font-family:var(--font);outline:none;cursor:pointer">
@@ -117,7 +128,7 @@ async function loadStations(){
   const col=new Intl.Collator('mn',{sensitivity:'base',numeric:true});
   const unique=[...new Set((data||[]).map(r=>r.station_name).filter(v=>v&&String(v).trim()!==''))].sort((a,b)=>col.compare(a,b));
   allStations=unique.map(name=>({name}));renderSidebar(allStations);
-  // Populate mobile select
+  {const ms=document.getElementById('mob-sel');if(ms){ms.innerHTML='<option value="">🏭 Станц сонгоно уу…</option>';unique.forEach(n=>{const o=document.createElement('option');o.value=n;o.textContent=n;ms.appendChild(o);});}}
   const mobSel=document.getElementById('mob-station-sel');
   if(mobSel){
     mobSel.innerHTML='<option value="">🏭 Станц сонгоно уу…</option>';
@@ -136,7 +147,7 @@ function renderSidebar(list){
 }
 document.getElementById('station-search').addEventListener('input',e=>{const q=(e.target.value||'').toLowerCase();renderSidebar(allStations.filter(s=>(s.name||'').toLowerCase().includes(q)));});
 async function selectStation(name){
-  currentStation=name;renderSidebar(allStations);
+  currentStation=name;renderSidebar(allStations);{const ms=document.getElementById('mob-sel');if(ms)ms.value=name;}
   const ms=document.getElementById('mob-station-sel');if(ms)ms.value=name;
   document.getElementById('main-title').textContent=name;document.getElementById('main-meta').textContent='Уншиж байна...';
   document.getElementById('table-area').innerHTML='<div class="center-msg"><div class="loading-bar"></div><p>Уншиж байна...</p></div>';
