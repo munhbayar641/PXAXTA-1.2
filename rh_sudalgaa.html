@@ -33,19 +33,30 @@ tr:hover td{background:rgba(75,214,255,.05)}
 </div>
 
 <div class="layout">
+  <!-- Mobile dropdown select (≤600px) -->
+  <select id="mob-station-sel" onchange="if(this.value)selectStation(this.value)"
+    style="display:none;width:100%;padding:10px 14px;margin:8px 0 0;
+    background:var(--card);border:1px solid var(--border);border-radius:14px;
+    color:var(--text);font-size:14px;font-weight:700;font-family:var(--font);outline:none;cursor:pointer">
+    <option value="">🏭 Станц сонгоно уу…</option>
+  </select>
+  <script>
+  (function(){
+    function checkMob(){
+      const s=document.getElementById('mob-station-sel');
+      const l=document.querySelector('.sidebar');
+      if(!s||!l)return;
+      if(window.innerWidth<=600){s.style.display='block';l.style.display='none';}
+      else{s.style.display='none';l.style.display='';}
+    }
+    checkMob();
+    window.addEventListener('resize',checkMob);
+  })();
+  </script>
+
   <div class="sidebar">
     <div class="sidebar-top">
-      <div style="position:relative;display:flex;gap:6px;align-items:center">
-      <input class="search-box" id="station-search" placeholder="🔍  Станц хайх..." type="text" style="flex:1"/>
-      <button onclick="toggleMobSidebar()" style="display:none;padding:7px 10px;border:1px solid var(--border);background:var(--card);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;flex-shrink:0" id="mob-dd-btn">▾</button>
-    </div>
-    <script>
-    if(window.innerWidth<=600){document.getElementById('mob-dd-btn').style.display='block';}
-    window.addEventListener('resize',()=>{
-      const b=document.getElementById('mob-dd-btn');
-      if(b)b.style.display=window.innerWidth<=600?'block':'none';
-    });
-    </script>
+      <input class="search-box" id="station-search" placeholder="🔍  Станц хайх..." type="text"/>
     </div>
     <div class="station-list" id="station-list">
       <div class="center-msg" style="height:180px"><div class="loading-bar"></div><p style="font-size:12px">Уншиж байна...</p></div>
@@ -106,6 +117,16 @@ async function loadStations(){
   const col=new Intl.Collator('mn',{sensitivity:'base',numeric:true});
   const unique=[...new Set((data||[]).map(r=>r.station_name).filter(v=>v&&String(v).trim()!==''))].sort((a,b)=>col.compare(a,b));
   allStations=unique.map(name=>({name}));renderSidebar(allStations);
+  // Populate mobile select
+  const mobSel=document.getElementById('mob-station-sel');
+  if(mobSel){
+    mobSel.innerHTML='<option value="">🏭 Станц сонгоно уу…</option>';
+    unique.forEach(name=>{
+      const o=document.createElement('option');
+      o.value=name;o.textContent=name;
+      mobSel.appendChild(o);
+    });
+  }
 }
 function renderSidebar(list){
   const el=document.getElementById('station-list');
@@ -116,6 +137,7 @@ function renderSidebar(list){
 document.getElementById('station-search').addEventListener('input',e=>{const q=(e.target.value||'').toLowerCase();renderSidebar(allStations.filter(s=>(s.name||'').toLowerCase().includes(q)));});
 async function selectStation(name){
   currentStation=name;renderSidebar(allStations);
+  const ms=document.getElementById('mob-station-sel');if(ms)ms.value=name;
   document.getElementById('main-title').textContent=name;document.getElementById('main-meta').textContent='Уншиж байна...';
   document.getElementById('table-area').innerHTML='<div class="center-msg"><div class="loading-bar"></div><p>Уншиж байна...</p></div>';
   const{data,error}=await sb.from('v_rh').select('*').eq('station_name',name).limit(100000);
@@ -159,39 +181,6 @@ function toggleTheme(){const b=document.body,t=b.getAttribute('data-theme')==='d
 (function(){try{const t=localStorage.getItem('app_theme');if(t)document.body.setAttribute('data-theme',t)}catch(e){}})();
 init();
 
-// Mobile dropdown sidebar
-function isMobile(){return window.innerWidth<=600}
-function toggleMobSidebar(force){
-  const sl=document.getElementById('station-list');
-  if(!sl)return;
-  if(force===false||sl.classList.contains('mob-open')){
-    sl.classList.remove('mob-open');
-  } else {
-    sl.classList.add('mob-open');
-  }
-}
-// Patch search box to open dropdown on focus
-document.addEventListener('DOMContentLoaded',()=>{
-  const sb=document.getElementById('station-search');
-  const sl=document.getElementById('station-list');
-  if(!sb||!sl)return;
-  sb.addEventListener('focus',()=>{ if(isMobile()) sl.classList.add('mob-open'); });
-  sb.addEventListener('input',()=>{ if(isMobile()) sl.classList.add('mob-open'); });
-  // Click outside closes
-  document.addEventListener('click',e=>{
-    if(isMobile()&&!e.target.closest('.sidebar')){
-      sl.classList.remove('mob-open');
-    }
-  });
-});
-// Patch selectStation to close dropdown after selection
-const _origSelect=typeof selectStation==='function'?selectStation:null;
-if(_origSelect){
-  window.selectStation=function(name){
-    _origSelect(name);
-    if(isMobile()) toggleMobSidebar(false);
-  };
-}
 
 </script>
 </body></html>
