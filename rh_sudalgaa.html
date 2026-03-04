@@ -13,12 +13,16 @@ tr:hover td{background:rgba(75,214,255,.05)}
   .sidebar{display:none!important}
   #mob-sel-wrap{display:block!important}
 }
-#mob-sel-wrap{display:none;padding:8px 0}
+#mob-sel-wrap{
+  display:none;
+  padding:10px 12px 4px;
+}
 #mob-sel-wrap select{
   width:100%;padding:12px 14px;
   background:var(--card);border:1px solid var(--border);border-radius:14px;
-  color:var(--text);font-size:14px;font-weight:700;font-family:var(--font);
-  outline:none;cursor:pointer;
+  color:var(--text);font-size:14px;font-weight:700;
+  font-family:var(--font);outline:none;cursor:pointer;
+  -webkit-appearance:auto;
 }
 </style>
 </head>
@@ -45,26 +49,8 @@ tr:hover td{background:rgba(75,214,255,.05)}
   </div>
 </div>
 
-<div class="layout">  <select id="mob-station-sel" onchange="if(this.value)selectStation(this.value)"
-    style="display:none;width:100%;padding:10px 14px;margin:8px 0 0;
-    background:var(--card);border:1px solid var(--border);border-radius:14px;
-    color:var(--text);font-size:14px;font-weight:700;font-family:var(--font);outline:none;cursor:pointer">
-    <option value="">🏭 Станц сонгоно уу…</option>
-  </select>
-  <script>
-  (function(){
-    function checkMob(){
-      const s=document.getElementById('mob-station-sel');
-      const l=document.querySelector('.sidebar');
-      if(!s||!l)return;
-      if(window.innerWidth<=600){s.style.display='block';l.style.display='none';}
-      else{s.style.display='none';l.style.display='';}
-    }
-    checkMob();
-    window.addEventListener('resize',checkMob);
-  })();
-  </script>
-
+<div id="mob-sel-wrap"><select id="mob-sel" onchange="if(this.value)selectStation(this.value)"><option value="">🏭 Станц сонгоно уу…</option></select></div>
+<div class="layout">    
   <div class="sidebar">
     <div class="sidebar-top">
       <input class="search-box" id="station-search" placeholder="🔍  Станц хайх..." type="text"/>
