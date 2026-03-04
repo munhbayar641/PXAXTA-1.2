@@ -41,6 +41,29 @@ iframe{width:100%;height:100%;border:0;background:#fff}
 [data-theme="light"] .empty-card{border-color:rgba(10,20,40,.15);background:rgba(255,255,255,.5)}
 @media(max-width:900px){.content{grid-template-columns:1fr;height:auto}.left{min-height:400px}}
 </style>
+<style id="burger-style">
+.burger{display:none;cursor:pointer;border:1px solid var(--border);background:var(--card);
+  border-radius:10px;padding:7px 9px;color:var(--text);font-size:16px;line-height:1;flex-shrink:0}
+.mobile-nav{
+  display:none;position:fixed;top:0;left:0;right:0;bottom:0;z-index:999;
+  background:rgba(5,8,18,.95);backdrop-filter:blur(16px);
+  flex-direction:column;align-items:center;justify-content:center;gap:12px;
+}
+.mobile-nav.open{display:flex}
+.mobile-nav a{
+  font-size:16px;font-weight:900;color:var(--text);text-decoration:none;
+  padding:14px 32px;border:1px solid var(--border);border-radius:16px;
+  background:var(--card);width:240px;text-align:center;
+  transition:all .15s;
+}
+.mobile-nav a:hover,.mobile-nav a.active{color:var(--accent);border-color:rgba(75,214,255,.4);background:rgba(75,214,255,.08)}
+.mobile-nav-close{
+  position:absolute;top:20px;right:20px;font-size:22px;cursor:pointer;
+  color:var(--muted);border:1px solid var(--border);background:var(--card);
+  border-radius:50%;width:40px;height:40px;display:grid;place-items:center;
+}
+@media(max-width:600px){.burger{display:flex}}
+</style>
 </head>
 <body data-theme="dark">
 <div class="app">
@@ -58,6 +81,7 @@ iframe{width:100%;height:100%;border:0;background:#fff}
     <a href="station_schema.html">Схем (PDF)</a>
     <a href="login.html" style="display:none">Login</a>
   </nav>
+    <button class="burger" onclick="document.getElementById('mnav').classList.add('open')">☰</button>
   <div class="topbar-right">
     <div class="conn-chip"><span class="conn-dot" id="connDot"></span><span id="connText">Холбогдож байна…</span></div>
     <button class="btn" onclick="reload()">↻</button>
@@ -300,4 +324,13 @@ function toggleTheme(){const b=document.body,t=b.getAttribute('data-theme')==='d
 function esc(s=''){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');}
 function toast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;right:14px;bottom:14px;z-index:9999;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:var(--card2);box-shadow:var(--shadow);color:var(--text);font-weight:800;font-size:13px;';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1400);}
 </script>
+
+<div class="mobile-nav" id="mnav">
+  <div class="mobile-nav-close" onclick="document.getElementById('mnav').classList.remove('open')">✕</div>
+  <a href="tavil.html">Тавилын карт</a>
+    <a href="rh_sudalgaa.html">Реле судалгаа</a>
+    <a href="alban_bichig.html" class="active">Албан бичиг</a>
+    <a href="station_schema.html">Схем (PDF)</a>
+    <a href="login.html" style="display:none">Login</a>
+</div>
 </body></html>
