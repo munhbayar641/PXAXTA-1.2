@@ -49,7 +49,6 @@ tr:hover td{background:rgba(75,214,255,.05)}
   </div>
 </div>
 
-<div id="mob-sel-wrap"><select id="mob-sel" onchange="if(this.value)selectStation(this.value)"><option value="">🏭 Станц сонгоно уу…</option></select></div>
 <div class="layout">    
   <div class="sidebar">
     <div class="sidebar-top">
@@ -180,4 +179,20 @@ init();
 
 
 </script>
+
+
+<!-- Mobile station select — outside .app to avoid iOS fixed-parent bug -->
+<div id="mob-sel-wrap">
+  <select id="mob-sel" onchange="if(this.value){const s=allStations.find(x=>x.name===this.value);if(s)selectStation(s.name);}">
+    <option value="">🏭 Станц сонгоно уу…</option>
+  </select>
+</div>
+
+<div class="mobile-nav" id="mnav">
+  <div class="mobile-nav-close" onclick="document.getElementById('mnav').classList.remove('open')">✕</div>
+  <a href="tavil.html" class="">Тавилын карт</a>
+  <a href="rh_sudalgaa.html" class="active">Реле судалгаа</a>
+  <a href="alban_bichig.html" class="">Албан бичиг</a>
+  <a href="station_schema.html" class="">Схем (PDF)</a>
+</div>
 </body></html>
