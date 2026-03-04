@@ -83,7 +83,6 @@ iframe{flex:1;width:100%;border:0;background:#fff}
   </div>
 </div>
 
-<div id="mob-sel-wrap"><select id="mob-sel" onchange="if(this.value)selectStation(this.value)"><option value="">🏭 Станц сонгоно уу…</option></select></div>
 <div class="layout">
   <!-- Sidebar: station list (desktop) -->
   <div class="sidebar">
@@ -161,6 +160,8 @@ async function init(){
     allStations=data||[];
     setConn(true);
     renderStations(allStations);
+    // Populate mobile select
+    {const ms=document.getElementById('mob-sel');if(ms){ms.innerHTML='<option value="">🏭 Станц сонгоно уу…</option>';allStations.forEach(s=>{const o=document.createElement('option');o.value=s.id;o.textContent=s.name;ms.appendChild(o);});}}
   }catch(e){
     setConn(false);
     document.getElementById('stationList').innerHTML=
@@ -464,4 +465,20 @@ function toggleTheme(){
 
 
 </script>
+
+
+<!-- Mobile station select — outside .app to avoid iOS fixed-parent bug -->
+<div id="mob-sel-wrap">
+  <select id="mob-sel" onchange="if(this.value){const s=allStations.find(x=>x.id===this.value);if(s)selectStation(s.id,s.name);}">
+    <option value="">🏭 Станц сонгоно уу…</option>
+  </select>
+</div>
+
+<div class="mobile-nav" id="mnav">
+  <div class="mobile-nav-close" onclick="document.getElementById('mnav').classList.remove('open')">✕</div>
+  <a href="tavil.html" class="">Тавилын карт</a>
+  <a href="rh_sudalgaa.html" class="">Реле судалгаа</a>
+  <a href="alban_bichig.html" class="">Албан бичиг</a>
+  <a href="station_schema.html" class="active">Схем (PDF)</a>
+</div>
 </body></html>
