@@ -293,8 +293,9 @@ tr:hover td{background:rgba(75,214,255,.05)}
   /* Burger */
   .burger{display:flex!important;padding:5px 8px;font-size:14px;border-radius:9px}
 
-  /* Push content below fixed topbar */
+  /* Push content below fixed topbar + dropdown */
   .app{padding-top:44px;height:auto!important;display:block!important}
+  .layout{padding-top:62px}
 
   /* ── Page layout ── */
   .page{padding:12px 10px}
