@@ -26,6 +26,19 @@
 .volt-item span{color:var(--text)}
 .volt-modal-footer{padding:10px 14px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px}
 </style>
+<style>
+@media(max-width:600px){
+  .sidebar{display:none!important}
+  #mob-sel-wrap{display:block!important}
+}
+#mob-sel-wrap{display:none;padding:10px 12px 4px}
+#mob-sel-wrap select{
+  width:100%;padding:12px 14px;
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  color:var(--text);font-size:14px;font-weight:700;
+  font-family:var(--font);outline:none;cursor:pointer;-webkit-appearance:auto;
+}
+</style>
 </head>
 <body data-theme="dark">
 <div class="app">
@@ -50,6 +63,7 @@
   </div>
 </div>
 
+<div id="mob-sel-wrap"><select id="mob-sel" onchange="if(this.value){const s=allStations.find(x=>x.name===this.value);if(s)selectStation(s.name,s.id);}"><option value="">🏭 Станц сонгоно уу…</option></select></div>
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-top">
@@ -128,6 +142,7 @@ async function init(){
     const col=new Intl.Collator('mn',{sensitivity:'base',numeric:true});
     allStations=(stData||[]).map(r=>({id:r.id,name:r.name,equips:'—'})).sort((a,b)=>col.compare(a.name||'',b.name||''));
     renderSidebar(allStations);document.getElementById('st-total').textContent=allStations.length;
+    {const ms=document.getElementById('mob-sel');if(ms){ms.innerHTML='<option value="">🏭 Станц сонгоно уу…</option>';allStations.forEach(s=>{const o=document.createElement('option');o.value=s.name;o.textContent=s.name;ms.appendChild(o);});}}
     toast('✅ Холбогдлоо!','success');
   }catch(e){setConn(false);toast('❌ '+e.message,'error');}
 }
@@ -149,7 +164,7 @@ function clearVoltFilter(){selectedVolts.clear();closeVoltModal();applyFilters()
 function applyVoltModal(){closeVoltModal();applyFilters();}
 async function selectStation(stationId,stationName){
   if(Object.keys(pendingEdits).length>0){if(!confirm('Хадгалаагүй өөрчлөлт байна. Үргэлжлүүлэх үү?'))return;pendingEdits={};updateUnsaved();}
-  currentStation=stationName;currentStationId=stationId;
+  currentStation=stationName;currentStationId=stationId;{const ms=document.getElementById('mob-sel');if(ms)ms.value=stationName;}
   document.querySelectorAll('.station-item').forEach(el=>el.classList.toggle('active',el.dataset.id===stationId));
   document.getElementById('main-title').textContent=stationName;
   selectedEquips.clear();selectedProts.clear();selectedVolts.clear();
