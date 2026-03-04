@@ -40,6 +40,34 @@ iframe{width:100%;height:100%;border:0;background:#fff}
 .empty-card{max-width:400px;border:1px dashed rgba(255,255,255,.15);border-radius:16px;padding:20px;background:rgba(0,0,0,.06);line-height:1.8}
 [data-theme="light"] .empty-card{border-color:rgba(10,20,40,.15);background:rgba(255,255,255,.5)}
 @media(max-width:900px){.content{grid-template-columns:1fr;height:auto}.left{min-height:400px}}
+
+/* Mobile PDF viewer */
+@media(max-width:600px){
+  .viewer{overflow:hidden!important;position:relative}
+  .mob-pdf-wrap{
+    width:100%;height:70vh;
+    overflow:auto;
+    -webkit-overflow-scrolling:touch;
+    background:#525659;
+    display:flex;flex-direction:column;align-items:center;
+    padding:8px 0;gap:6px;
+  }
+  .mob-pdf-wrap canvas{
+    max-width:100%;
+    box-shadow:0 2px 8px rgba(0,0,0,.4);
+  }
+  .mob-pdf-controls{
+    display:flex;align-items:center;gap:8px;padding:8px 12px;
+    background:rgba(7,10,18,.95);border-top:1px solid var(--border);
+    flex-shrink:0;
+  }
+  .mob-pdf-controls button{
+    padding:7px 12px;border:1px solid var(--border);background:var(--card);
+    color:var(--text);border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;
+  }
+  .mob-pdf-page-info{font-size:12px;color:var(--muted);flex:1;text-align:center}
+  iframe.mob-hide{display:none!important}
+}
 </style>
 </head>
 <body data-theme="dark">
@@ -251,7 +279,7 @@ function selectFi(id){
 function openPdf(){
   const r=allRows.find(x=>x.id===selFi);
   if(!r?.public_url)return;
-  document.getElementById('viewer').innerHTML=`<iframe src="${esc(r.public_url)}" title="${esc(r.title)}"></iframe>`;
+  if(window.innerWidth<=600){loadMobPdf(r.public_url);}else{document.getElementById('viewer').innerHTML=`<iframe src="${esc(r.public_url)}" title="${esc(r.title)}"></iframe>`;}
 }
 
 function copyLink(){
@@ -300,6 +328,70 @@ function toggleTheme(){const b=document.body,t=b.getAttribute('data-theme')==='d
 (function(){try{const t=localStorage.getItem('app_theme');if(t)document.body.setAttribute('data-theme',t)}catch(e){}})();
 function esc(s=''){return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');}
 function toast(msg){const el=document.createElement('div');el.style.cssText='position:fixed;right:14px;bottom:14px;z-index:9999;padding:10px 14px;border:1px solid var(--border);border-radius:14px;background:var(--card2);box-shadow:var(--shadow);color:var(--text);font-weight:800;font-size:13px;';el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),1400);}
+
+// Mobile PDF.js viewer
+(function(){
+  if(window.innerWidth>600)return;
+  
+  let pdfDoc=null,curPage=1,totalPages=0,scale=1.5;
+  const PDFJS_CDN='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js';
+  const WORKER='https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
+
+  window.loadMobPdf=function(url){
+    const viewer=document.getElementById('viewer');
+    viewer.innerHTML=`
+      <div class="mob-pdf-wrap" id="mob-pdf-pages">
+        <div style="color:#aaa;font-size:13px;padding:20px">PDF уншиж байна…</div>
+      </div>
+      <div class="mob-pdf-controls">
+        <button onclick="mobPdfPrev()">◀</button>
+        <span class="mob-pdf-page-info" id="mob-pg">— / —</span>
+        <button onclick="mobPdfNext()">▶</button>
+        <button onclick="mobPdfZoom(0.25)">＋</button>
+        <button onclick="mobPdfZoom(-0.25)">－</button>
+      </div>`;
+    
+    if(window.pdfjsLib){
+      renderPdf(url);
+    } else {
+      const s=document.createElement('script');
+      s.src=PDFJS_CDN;
+      s.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc=WORKER;renderPdf(url);};
+      document.head.appendChild(s);
+    }
+  };
+
+  function renderPdf(url){
+    window.pdfjsLib.getDocument(url).promise.then(pdf=>{
+      pdfDoc=pdf;totalPages=pdf.numPages;curPage=1;
+      renderPage(curPage);
+    }).catch(e=>{
+      document.getElementById('mob-pdf-pages').innerHTML=
+        `<div style="color:#ff4d7d;padding:20px;font-size:12px">❌ PDF нээхэд алдаа гарлаа</div>`;
+    });
+  }
+
+  function renderPage(n){
+    const wrap=document.getElementById('mob-pdf-pages');
+    if(!wrap)return;
+    wrap.innerHTML='<div style="color:#aaa;font-size:13px;padding:20px">Хуудас уншиж байна…</div>';
+    document.getElementById('mob-pg').textContent=n+' / '+totalPages;
+    pdfDoc.getPage(n).then(page=>{
+      const vp=page.getViewport({scale});
+      const canvas=document.createElement('canvas');
+      canvas.width=vp.width;canvas.height=vp.height;
+      const ctx=canvas.getContext('2d');
+      page.render({canvasContext:ctx,viewport:vp}).promise.then(()=>{
+        wrap.innerHTML='';wrap.appendChild(canvas);
+      });
+    });
+  }
+
+  window.mobPdfPrev=function(){if(curPage>1){curPage--;renderPage(curPage);}};
+  window.mobPdfNext=function(){if(curPage<totalPages){curPage++;renderPage(curPage);}};
+  window.mobPdfZoom=function(d){scale=Math.max(0.5,Math.min(4,scale+d));renderPage(curPage);};
+})();
+
 </script>
 
 <div class="mobile-nav" id="mnav">
