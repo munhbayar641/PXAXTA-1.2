@@ -250,125 +250,142 @@ tr:hover td{background:rgba(75,214,255,.05)}
 [data-theme="light"] .hero{background:rgba(255,255,255,.8)}
 
 /* ══════════════════════════════════════════════
-   MOBILE RESPONSIVE
+   MOBILE  ≤ 600px
    ══════════════════════════════════════════════ */
-
-
-@media(max-width:860px){
-  body{overflow:auto}
-  .layout{grid-template-columns:1fr;grid-template-rows:180px 1fr}
-  .sidebar{height:180px;border-right:none;border-bottom:1px solid var(--border)}
-  .station-list{padding:4px}
-  .station-item{padding:6px 8px}
-  .s-name{font-size:11px}
-}
-
 @media(max-width:600px){
   body{overflow:auto}
-  :root{--h:auto}
 
-  /* ── Topbar: fixed at top, never scrolls ── */
+  /* ── Fixed compact topbar ── */
   .topbar{
-    flex-wrap:nowrap;gap:6px;padding:7px 10px;
-    align-items:center;
-    position:fixed!important;top:0;left:0;right:0;
-    z-index:200;
+    position:fixed!important;top:0;left:0;right:0;z-index:300;
+    flex-wrap:nowrap;align-items:center;
+    padding:5px 8px;gap:5px;
+    min-height:44px;max-height:44px;
+    background:rgba(7,10,18,.96)!important;
+    backdrop-filter:blur(14px);
   }
-  /* Push content below fixed topbar */
-  .app{padding-top:50px}
-  .login-wrap{padding-top:60px}
 
-  /* Brand: tiny pill, just logos + text, no "Stations·Settings" */
+  /* Brand: icon only size */
   .brand{
-    min-width:unset;padding:4px 8px;border-radius:12px;
-    gap:6px;flex-shrink:0;
-    background:var(--card);
+    min-width:unset;padding:3px 6px;border-radius:10px;gap:5px;flex-shrink:0;
   }
-  .brand img:first-child{height:22px!important}
-  .brand img:last-of-type{height:20px!important}
-  .brand > div[style*="width:1px"]{height:18px!important}
-  .brand-text b{font-size:11px}
-  .brand-text span{display:none}
+  .brand img:first-child{height:20px!important}
+  .brand img:last-of-type{height:18px!important}
+  .brand > div[style*="width:1px"]{height:16px!important}
+  .brand-text{display:none}
 
-  /* Nav: scrollable, small, hidden on very small */
-  .nav{
-    display:none; /* hidden on mobile - use burger if needed */
-  }
+  /* Nav: completely hidden — use burger */
+  .nav{display:none!important}
 
-  /* Right: keep conn dot + theme btn only */
-  .topbar-right{gap:5px;margin-left:auto}
-  .conn-chip{padding:5px 7px}
-  .conn-chip span:last-child{display:none}
-  #rha-chip{padding:4px 7px;gap:5px;font-size:10px}
-  #rha-chip span[title]{max-width:70px;font-size:10px}
+  /* Auth chip compact */
+  #rha-chip{padding:3px 6px;gap:4px;border-radius:10px;font-size:10px}
+  #rha-chip span[title]{display:none}
   #rha-timer{display:none}
+  #rha-chip button{padding:3px 7px;font-size:10px}
 
-  /* Page */
+  /* Conn chip: dot only */
+  .conn-chip{padding:4px 6px}
+  .conn-chip span:last-child{display:none}
+
+  /* Theme btn */
+  .btn[onclick="toggleTheme()"]{padding:5px 8px;font-size:13px}
+
+  /* Burger */
+  .burger{display:flex!important;padding:5px 8px;font-size:14px;border-radius:9px}
+
+  /* Push content below fixed topbar */
+  .app{padding-top:44px;height:auto!important;display:block!important}
+
+  /* ── Page layout ── */
   .page{padding:12px 10px}
 
-  /* Hero */
-  .hero{padding:16px 14px 14px;border-radius:16px}
-  .hero-title{font-size:18px}
-  .hero-sub{font-size:11px}
-  .hero-stats{gap:6px}
-  .hstat{padding:7px 9px;gap:6px;border-radius:10px}
-  .hstat-val{font-size:14px}
-  .hstat-lbl{font-size:9px}
-  .hero-glow{display:none}
-
-  /* About section grid → column */
-  div[style*="grid-template-columns:1fr 1fr"]{
-    display:flex!important;flex-direction:column!important;gap:12px!important;
-  }
-
-  /* Module cards → 1 col */
-  .grid,.grid2{grid-template-columns:1fr!important;gap:8px}
-  .card{padding:14px;border-radius:14px}
-  .card-icon-wrap{width:38px;height:38px;font-size:18px}
-  .card-title{font-size:13px}
-
-  /* Two-panel layout */
+  /* ── Two-panel: sidebar on top, small ── */
   .layout{
-    grid-template-columns:1fr!important;
-    grid-template-rows:auto 1fr!important;
-    height:auto!important;
+    display:flex!important;flex-direction:column!important;
+    height:auto!important;overflow:visible!important;
   }
   .sidebar{
-    height:160px!important;
-    border-right:none;border-bottom:1px solid var(--border);
+    height:auto!important;max-height:180px;
+    border-right:none!important;border-bottom:1px solid var(--border);
+    overflow:hidden;
   }
-  .station-list{padding:4px}
-  .station-item{padding:6px 8px;border-radius:10px}
-  .s-icon{font-size:13px}
-  .s-name{font-size:11px}
+  .station-list{max-height:140px;overflow-y:auto;padding:4px}
+  .station-item{padding:7px 10px;border-radius:10px;margin-bottom:2px}
+  .s-icon{font-size:14px}
+  .s-name{font-size:12px}
+  .sidebar-top{padding:8px}
+  .search-box{font-size:12px;padding:7px 10px}
 
-  /* topbar2 */
-  .topbar2{padding:8px 10px;gap:6px}
+  /* Main area */
+  .main{min-height:0;overflow:visible}
+  .topbar2{padding:8px 10px;flex-wrap:wrap;gap:6px}
   .topbar2-right{gap:5px}
   .main-title{font-size:13px}
   .main-meta{font-size:10px}
 
-  /* Stats row */
-  .stats-row{gap:6px;padding:7px 10px}
-  .stat-card{min-width:75px;padding:7px 9px;gap:6px;border-radius:11px}
-  .stat-val{font-size:14px}
+  /* Stats */
+  .stats-row{padding:7px 8px;gap:6px;flex-wrap:wrap}
+  .stat-card{min-width:unset;flex:1;padding:7px 8px;gap:6px;border-radius:10px}
+  .stat-val{font-size:15px}
   .stat-label{font-size:9px}
 
   /* Table */
-  .table-area{padding:6px}
+  .table-area{padding:6px;overflow-x:auto}
   table{font-size:11px}
   th,td{padding:5px 7px}
 
+  /* Hero */
+  .hero{padding:16px 14px;border-radius:16px;margin-bottom:16px}
+  .hero-title{font-size:18px}
+  .hero-sub{font-size:11px}
+  .hero-glow{display:none}
+  .hero-stats{gap:6px;flex-wrap:wrap}
+  .hstat{padding:7px 9px;gap:6px;border-radius:10px;flex:1;min-width:80px}
+  .hstat-val{font-size:14px}
+  .hstat-lbl{font-size:9px}
+
+  /* About section */
+  div[style*="grid-template-columns:1fr 1fr"]{
+    display:flex!important;flex-direction:column!important;gap:10px!important;
+  }
+
+  /* Cards */
+  .grid,.grid2{grid-template-columns:1fr!important;gap:8px}
+  .card{padding:14px;border-radius:14px}
+  .card-icon-wrap{width:38px;height:38px;font-size:18px}
+
   /* Alban bichig */
   .content{
-    grid-template-columns:1fr!important;
-    height:auto!important;padding:8px;gap:8px;
     display:flex!important;flex-direction:column!important;
+    height:auto!important;padding:8px;gap:8px;
   }
-  .left{min-height:260px}
-  .split{grid-template-columns:90px 55px 1fr}
+  .left{min-height:240px}
+  .split{grid-template-columns:90px 52px 1fr}
   .item{font-size:10px;padding:5px 7px}
 
   /* Section title */
-  .section-title{font-size:10px}
+  .section-title{font-size:10px;margin-bottom:8px}
 }
+
+/* ── Burger & mobile nav ── */
+.burger{display:none}
+.mobile-nav{
+  display:none;position:fixed;inset:0;z-index:400;
+  background:rgba(5,8,18,.97);backdrop-filter:blur(18px);
+  flex-direction:column;align-items:center;justify-content:center;gap:10px;
+}
+.mobile-nav.open{display:flex}
+.mobile-nav a{
+  font-size:15px;font-weight:900;color:var(--text);text-decoration:none;
+  padding:13px 28px;border:1px solid var(--border);border-radius:14px;
+  background:var(--card);width:220px;text-align:center;transition:all .15s;
+}
+.mobile-nav a.active,.mobile-nav a:hover{
+  color:var(--accent);border-color:rgba(75,214,255,.4);background:rgba(75,214,255,.08)
+}
+.mobile-nav-close{
+  position:absolute;top:18px;right:18px;font-size:20px;cursor:pointer;
+  color:var(--muted);border:1px solid var(--border);background:var(--card);
+  border-radius:50%;width:38px;height:38px;display:grid;place-items:center;
+}
+@media(max-width:600px){.burger{display:flex}}
