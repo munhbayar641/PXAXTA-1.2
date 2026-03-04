@@ -35,7 +35,17 @@ tr:hover td{background:rgba(75,214,255,.05)}
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-top">
-      <input class="search-box" id="station-search" placeholder="🔍  Станц хайх..." type="text"/>
+      <div style="position:relative;display:flex;gap:6px;align-items:center">
+      <input class="search-box" id="station-search" placeholder="🔍  Станц хайх..." type="text" style="flex:1"/>
+      <button onclick="toggleMobSidebar()" style="display:none;padding:7px 10px;border:1px solid var(--border);background:var(--card);border-radius:10px;color:var(--text);font-size:13px;cursor:pointer;flex-shrink:0" id="mob-dd-btn">▾</button>
+    </div>
+    <script>
+    if(window.innerWidth<=600){document.getElementById('mob-dd-btn').style.display='block';}
+    window.addEventListener('resize',()=>{
+      const b=document.getElementById('mob-dd-btn');
+      if(b)b.style.display=window.innerWidth<=600?'block':'none';
+    });
+    </script>
     </div>
     <div class="station-list" id="station-list">
       <div class="center-msg" style="height:180px"><div class="loading-bar"></div><p style="font-size:12px">Уншиж байна...</p></div>
@@ -148,14 +158,40 @@ function exportCSV(){
 function toggleTheme(){const b=document.body,t=b.getAttribute('data-theme')==='dark'?'light':'dark';b.setAttribute('data-theme',t);try{localStorage.setItem('app_theme',t)}catch(e){}}
 (function(){try{const t=localStorage.getItem('app_theme');if(t)document.body.setAttribute('data-theme',t)}catch(e){}})();
 init();
-</script>
 
-<div class="mobile-nav" id="mnav">
-  <div class="mobile-nav-close" onclick="document.getElementById('mnav').classList.remove('open')">✕</div>
-  <a href="tavil.html">Тавилын карт</a>
-    <a href="rh_sudalgaa.html" class="active">Реле судалгаа</a>
-    <a href="alban_bichig.html">Албан бичиг</a>
-    <a href="station_schema.html">Схем (PDF)</a>
-    <a href="login.html" style="display:none">Login</a>
-</div>
+// Mobile dropdown sidebar
+function isMobile(){return window.innerWidth<=600}
+function toggleMobSidebar(force){
+  const sl=document.getElementById('station-list');
+  if(!sl)return;
+  if(force===false||sl.classList.contains('mob-open')){
+    sl.classList.remove('mob-open');
+  } else {
+    sl.classList.add('mob-open');
+  }
+}
+// Patch search box to open dropdown on focus
+document.addEventListener('DOMContentLoaded',()=>{
+  const sb=document.getElementById('station-search');
+  const sl=document.getElementById('station-list');
+  if(!sb||!sl)return;
+  sb.addEventListener('focus',()=>{ if(isMobile()) sl.classList.add('mob-open'); });
+  sb.addEventListener('input',()=>{ if(isMobile()) sl.classList.add('mob-open'); });
+  // Click outside closes
+  document.addEventListener('click',e=>{
+    if(isMobile()&&!e.target.closest('.sidebar')){
+      sl.classList.remove('mob-open');
+    }
+  });
+});
+// Patch selectStation to close dropdown after selection
+const _origSelect=typeof selectStation==='function'?selectStation:null;
+if(_origSelect){
+  window.selectStation=function(name){
+    _origSelect(name);
+    if(isMobile()) toggleMobSidebar(false);
+  };
+}
+
+</script>
 </body></html>
