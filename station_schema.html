@@ -47,12 +47,16 @@ iframe{flex:1;width:100%;border:0;background:#fff}
   .sidebar{display:none!important}
   #mob-sel-wrap{display:block!important}
 }
-#mob-sel-wrap{display:none;padding:8px 0}
+#mob-sel-wrap{
+  display:none;
+  padding:10px 12px 4px;
+}
 #mob-sel-wrap select{
   width:100%;padding:12px 14px;
   background:var(--card);border:1px solid var(--border);border-radius:14px;
-  color:var(--text);font-size:14px;font-weight:700;font-family:var(--font);
-  outline:none;cursor:pointer;
+  color:var(--text);font-size:14px;font-weight:700;
+  font-family:var(--font);outline:none;cursor:pointer;
+  -webkit-appearance:auto;
 }
 </style>
 </head>
@@ -79,6 +83,7 @@ iframe{flex:1;width:100%;border:0;background:#fff}
   </div>
 </div>
 
+<div id="mob-sel-wrap"><select id="mob-sel" onchange="if(this.value)selectStation(this.value)"><option value="">🏭 Станц сонгоно уу…</option></select></div>
 <div class="layout">
   <!-- Sidebar: station list (desktop) -->
   <div class="sidebar">
