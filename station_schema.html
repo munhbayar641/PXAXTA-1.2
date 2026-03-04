@@ -27,10 +27,16 @@ iframe{flex:1;width:100%;border:0;background:#fff}
 /* PDF list dropdown */
 .pdf-wrap{position:relative}
 .pdf-dropdown{
-  display:none;position:absolute;top:calc(100% + 5px);right:0;
-  min-width:300px;max-width:500px;max-height:320px;overflow-y:auto;
+  display:none;position:absolute;top:calc(100% + 5px);left:0;right:auto;
+  min-width:220px;max-width:90vw;max-height:320px;overflow-y:auto;
   background:var(--bg0);border:1px solid var(--border);border-radius:14px;
-  box-shadow:var(--shadow);z-index:60;padding:6px;
+  box-shadow:var(--shadow);z-index:160;padding:6px;
+}
+@media(max-width:600px){
+  .pdf-dropdown{
+    position:fixed;top:auto;bottom:80px;left:12px;right:12px;
+    max-width:unset;max-height:50vh;z-index:400;
+  }
 }
 .pdf-wrap.open .pdf-dropdown{display:block}
 .pdf-item{
