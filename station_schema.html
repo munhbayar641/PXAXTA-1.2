@@ -62,6 +62,12 @@ iframe{flex:1;width:100%;border:0;background:#fff}
 </head>
 <body data-theme="dark">
 <div class="app">
+<div id="mob-sel-wrap">
+  <select id="mob-sel" onchange="if(this.value){const s=allStations.find(x=>x.id===this.value);if(s)selectStation(s.id,s.name);}">
+    <option value="">🏭 Станц сонгоно уу…</option>
+  </select>
+</div>
+
 <div class="topbar">
   <a href="index.html" class="brand" style="text-decoration:none;cursor:pointer">
     <img src="https://skpitxwtpqwoaydoltft.supabase.co/storage/v1/object/public/zurag/salbar_logo/logo.png" style="height:36px;width:auto;object-fit:contain;border-radius:6px" alt="Салбар лого"/>
@@ -468,11 +474,6 @@ function toggleTheme(){
 
 
 <!-- Mobile station select — outside .app to avoid iOS fixed-parent bug -->
-<div id="mob-sel-wrap">
-  <select id="mob-sel" onchange="if(this.value){const s=allStations.find(x=>x.id===this.value);if(s)selectStation(s.id,s.name);}">
-    <option value="">🏭 Станц сонгоно уу…</option>
-  </select>
-</div>
 
 <div class="mobile-nav" id="mnav">
   <div class="mobile-nav-close" onclick="document.getElementById('mnav').classList.remove('open')">✕</div>
